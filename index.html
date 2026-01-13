@@ -1,0 +1,3453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="icon" href="data:,">
+    <title>INDUSTRIAL SYNTH v2.2 - BUILD 016</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ========== FIXED SURGE-MASSIVE UI ========== */
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        :root {
+            --bg-deep: #15171a;
+            --bg-panel: #1e2126;
+            --bg-header: #2a2d33;
+            --bg-track: #0a0c0e;
+            --accent-orange: #ff9d4d;
+            --accent-blue: #4da6ff;
+    --accent-toxic: #ccff00;  /* BUILD 022 */
+            --text-primary: #d0d0d0;
+            --text-secondary: #808080;
+            --border: #2a2d33;
+            --thumb-gradient-top: #555;
+            --thumb-gradient-bottom: #333;
+            
+            --font-ui: 'Roboto', -apple-system, sans-serif;
+            --font-mono: 'Roboto Mono', monospace;
+        }
+        
+        body {
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            line-height: 1.4;
+            padding: 8px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        /* ========== HEADER ========== */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-header);
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--accent-orange);
+        }
+        
+        h1 {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--accent-orange);
+            margin: 0;
+        }
+        
+        .subtitle {
+            font-size: 8px;
+            color: var(--text-secondary);
+            font-family: var(--font-mono);
+            margin-top: 2px;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        /* ========== STATUS BAR ========== */
+        .status-bar {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .status-indicator {
+            padding: 4px 10px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            font-size: 9px;
+            font-family: var(--font-mono);
+        }
+        
+        .status-indicator.active {
+            border-color: var(--accent-orange);
+            background: rgba(255, 157, 77, 0.15);
+        }
+        
+        /* ========== BUTTONS ========== */
+        button {
+            padding: 7px 16px;
+            background: var(--bg-panel);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-family: var(--font-ui);
+            font-size: 10px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: all 0.15s;
+        }
+        
+        button:hover:not(:disabled) {
+            border-color: var(--accent-orange);
+            background: rgba(255, 157, 77, 0.1);
+        }
+        
+        button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        
+        button.active {
+            background: #22c55e;
+            border-color: #22c55e;
+            color: #000;
+        }
+        
+        button.kill {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: #fff;
+        }
+        
+        /* ========== TOP SECTION (FIXED 3-Column) ========== */
+        .top-grid {
+            display: grid;
+            grid-template-columns: 320px minmax(400px, 600px) 320px;
+            gap: 8px;
+            margin-bottom: 8px;
+            justify-content: center;
+        }
+        
+        /* ========== BOTTOM SECTION ========== */
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 8px;
+        }
+        
+        /* ========== MODULE ========== */
+        .module {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            height: fit-content;
+        }
+        
+        .module-header {
+            background: var(--bg-header);
+            padding: 6px 10px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-orange);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .module-body {
+            padding: 10px;
+        }
+        
+        /* ========== COMPACT CONTROLS ========== */
+        .control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            min-height: 26px;
+        }
+        
+        .control label {
+            font-size: 9px;
+            font-weight: 500;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            min-width: 90px;
+            flex-shrink: 0;
+        }
+        
+        .control input[type="range"] {
+            flex: 1;
+        }
+        
+        .control .value-display {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--accent-orange);
+            background: var(--bg-deep);
+            padding: 3px 8px;
+            border: 1px solid var(--border);
+            min-width: 55px;
+            text-align: center;
+        }
+        
+        /* ========== PROFESSIONAL SLIDERS (Pro Audio Quality) ========== */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--bg-track);
+            border-radius: 3px;
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+            border: 1px solid #000;
+        }
+        
+        /* ========== SLIDER THUMB (Pro Fader Style) ========== */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 24px;
+            background: linear-gradient(to bottom, var(--thumb-gradient-top), var(--thumb-gradient-bottom));
+            border: 1px solid #666;
+            border-top: 2px solid var(--accent-orange);
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 14px;
+            height: 24px;
+            background: linear-gradient(to bottom, var(--thumb-gradient-top), var(--thumb-gradient-bottom));
+            border: 1px solid #666;
+            border-top: 2px solid var(--accent-orange);
+            border-radius: 2px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        
+        /* Hover Effect */
+        input[type="range"]::-webkit-slider-thumb:hover {
+            background: linear-gradient(to bottom, #666, #444);
+            border-top-color: #ffb366;
+        }
+        
+        input[type="range"]::-moz-range-thumb:hover {
+            background: linear-gradient(to bottom, #666, #444);
+            border-top-color: #ffb366;
+        }
+        
+        /* ========== VERTICAL FADERS (Mixer Console Style) ========== */
+        .faders-container {
+            display: flex !important;
+            flex-direction: row !important;  /* Explicit horizontal layout */
+            flex-wrap: nowrap !important;    /* Don't wrap to new line */
+            gap: 10px;
+            justify-content: space-around;
+            align-items: flex-start;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 2px;
+        }
+        
+        .fader-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;  /* Don't shrink */
+        }
+        
+        .fader-group label {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+        
+        /* Fader Slot (Mixer Console Groove) */
+        .fader-slot {
+            width: 36px;
+            height: 100px;
+            background: linear-gradient(to right, #0a0a0a, #0f0f0f, #0a0a0a);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.7), inset 0 -1px 0 rgba(255,255,255,0.03);
+            position: relative;
+        }
+        
+        /* Center guide line */
+        .fader-slot::before {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 10%;
+            bottom: 10%;
+            width: 1px;
+            background: rgba(255,157,77,0.2);
+            transform: translateX(-50%);
+        }
+        
+        input[type="range"].vertical-fader {
+            writing-mode: vertical-lr;
+            direction: rtl;
+            width: 6px;
+            height: 90px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+        }
+        
+        input[type="range"].vertical-fader::-webkit-slider-thumb {
+            width: 32px;
+            height: 12px;
+            background: linear-gradient(to bottom, #555, #333);
+            border: 1px solid #666;
+            border-top: 2px solid var(--accent-orange);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        
+        input[type="range"].vertical-fader::-moz-range-thumb {
+            width: 32px;
+            height: 12px;
+            background: linear-gradient(to bottom, #555, #333);
+            border: 1px solid #666;
+            border-top: 2px solid var(--accent-orange);
+            border-radius: 2px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        
+        input[type="range"].vertical-fader::-webkit-slider-thumb:hover {
+            background: linear-gradient(to bottom, #666, #444);
+            border-top-color: #ffb366;
+        }
+        
+        input[type="range"].vertical-fader::-moz-range-thumb:hover {
+            background: linear-gradient(to bottom, #666, #444);
+            border-top-color: #ffb366;
+        }
+        
+        .fader-group .value-display {
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--accent-orange);
+            background: var(--bg-deep);
+            padding: 3px 6px;
+            border: 1px solid var(--border);
+            min-width: 45px;
+            text-align: center;
+        }
+        
+        /* ========== SELECT DROPDOWN ========== */
+        select {
+            width: 100%;
+            padding: 5px 8px;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            font-family: var(--font-mono);
+            font-size: 10px;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        select:hover {
+            border-color: var(--accent-orange);
+        }
+        
+        option {
+            background: var(--bg-panel);
+        }
+        
+        /* ========== XY PAD (Fixed Aspect Ratio) ========== */
+        .xy-container {
+            display: flex;
+            flex-direction: column;
+            height: fit-content;
+        }
+        
+        #xyPadContainer {
+            background: var(--bg-deep);
+            border: 1px solid var(--border);
+            padding: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1 / 1;
+            max-height: 450px;
+        }
+        
+        #xyPad {
+            background: #000;
+            cursor: crosshair;
+            width: 100%;
+            height: 100%;
+            max-width: 450px;
+            max-height: 450px;
+        }
+        
+        .xy-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-top: none;
+            font-family: var(--font-mono);
+            font-size: 9px;
+        }
+        
+        #xyNoteStatus {
+            text-align: center;
+            padding: 5px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-top: none;
+            font-family: var(--font-mono);
+            font-size: 9px;
+            color: var(--accent-orange);
+        }
+        
+        /* ========== CANVAS ========== */
+        canvas {
+            display: block;
+            width: 100%;
+            background: #000;
+            border: 1px solid var(--border);
+        }
+        
+        .canvas-wrapper {
+            margin-bottom: 6px;
+        }
+        
+        .canvas-wrapper:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* ========== TOUCH KEYBOARD ========== */
+        .keyboard-module {
+            margin-top: 8px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        
+        /* Mobile: 縦積み */
+        @media (max-width: 768px) {
+            .keyboard-module {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        #touchKeyboard {
+            display: flex;
+            gap: 2px;
+            justify-content: center;
+            padding: 8px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+        }
+        
+        .key {
+            width: 36px;
+            height: 70px;
+            background: linear-gradient(to bottom, #f0f0f0, #d0d0d0);
+            border: 1px solid #999;
+            cursor: pointer;
+            transition: background 0.05s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .key:active, .key.active {
+            background: linear-gradient(to bottom, var(--accent-orange), #e88a3d);
+            transform: translateY(2px);
+        }
+        
+        .key.black {
+            width: 24px;
+            height: 45px;
+            background: linear-gradient(to bottom, #333, #111);
+            border: 1px solid #000;
+            margin: 0 -12px;
+            z-index: 1;
+        }
+        
+        .key.black:active, .key.black.active {
+            background: linear-gradient(to bottom, #555, #333);
+        }
+        
+        /* ========== WARNING ========== */
+        #browserWarning {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            padding: 10px;
+            margin-bottom: 8px;
+            font-size: 10px;
+            text-align: center;
+        }
+        
+        /* ========== UTILITY ========== */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* ========== LEFT COLUMN (Synth Core) - Height Fix ========== */
+        .synth-core-column {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        /* Ensure Wave Synthesis params are visible - but not faders */
+        .module-body > div:not(.faders-container) {
+            display: block;
+        }
+        
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1400px) {
+            .top-grid {
+                grid-template-columns: 300px minmax(350px, 500px) 300px;
+            }
+        }
+        
+        @media (max-width: 1200px) {
+            .top-grid {
+                grid-template-columns: 1fr;
+                justify-items: center;
+            }
+            
+            .xy-container {
+                max-width: 600px;
+            }
+            
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== COLOR CODING (Grouping by Function) ========== */
+        
+        /* Wave Synthesis - Orange Accent */
+        #synthTypeSelect {
+            border-color: #ff9d4d;
+        }
+        #fmRatioSlider::-webkit-slider-thumb,
+        #wavetablePosSlider::-webkit-slider-thumb,
+        #waveMorphSlider::-webkit-slider-thumb,
+        #harmonicsCountSlider::-webkit-slider-thumb,
+        #harmonicRolloffSlider::-webkit-slider-thumb,
+        #phaseDistAmtSlider::-webkit-slider-thumb,
+        #phaseResonanceSlider::-webkit-slider-thumb,
+        #vectorXSlider::-webkit-slider-thumb,
+        #vectorYSlider::-webkit-slider-thumb,
+        #grainSizeSlider::-webkit-slider-thumb,
+        #grainDensitySlider::-webkit-slider-thumb,
+        #modalStiffnessSlider::-webkit-slider-thumb,
+        #modalInharmonicitySlider::-webkit-slider-thumb {
+            border-top-color: #ff9d4d !important;
+        }
+        #fmRatioSlider::-moz-range-thumb,
+        #wavetablePosSlider::-moz-range-thumb,
+        #waveMorphSlider::-moz-range-thumb,
+        #harmonicsCountSlider::-moz-range-thumb,
+        #harmonicRolloffSlider::-moz-range-thumb,
+        #phaseDistAmtSlider::-moz-range-thumb,
+        #phaseResonanceSlider::-moz-range-thumb,
+        #vectorXSlider::-moz-range-thumb,
+        #vectorYSlider::-moz-range-thumb,
+        #grainSizeSlider::-moz-range-thumb,
+        #grainDensitySlider::-moz-range-thumb,
+        #modalStiffnessSlider::-moz-range-thumb,
+        #modalInharmonicitySlider::-moz-range-thumb {
+            border-top-color: #ff9d4d !important;
+        }
+        
+        /* ADSR Envelope - Green */
+        #attackFader::-webkit-slider-thumb,
+        #decayFader::-webkit-slider-thumb,
+        #sustainFader::-webkit-slider-thumb,
+        #releaseFader::-webkit-slider-thumb {
+            border-top-color: #4ade80 !important;
+        }
+        #attackFader::-moz-range-thumb,
+        #decayFader::-moz-range-thumb,
+        #sustainFader::-moz-range-thumb,
+        #releaseFader::-moz-range-thumb {
+            border-top-color: #4ade80 !important;
+        }
+        
+        /* Filter Character - Blue */
+        #cutoffFader::-webkit-slider-thumb,
+        #resonanceFader::-webkit-slider-thumb,
+        #filterQCharFader::-webkit-slider-thumb,
+        #filterDampFader::-webkit-slider-thumb,
+        #filterDriveSlider::-webkit-slider-thumb {
+            border-top-color: #4da6ff !important;
+        }
+        #cutoffFader::-moz-range-thumb,
+        #resonanceFader::-moz-range-thumb,
+        #filterQCharFader::-moz-range-thumb,
+        #filterDampFader::-moz-range-thumb,
+        #filterDriveSlider::-moz-range-thumb {
+            border-top-color: #4da6ff !important;
+        }
+        
+        /* Distortion & Drive - Red */
+        #noiseLevelSlider::-webkit-slider-thumb,
+        #modIndexSlider::-webkit-slider-thumb,
+        #driveSlider::-webkit-slider-thumb,
+        #foldSlider::-webkit-slider-thumb,
+        #bitDepthSlider::-webkit-slider-thumb,
+        #feedbackSlider::-webkit-slider-thumb,
+        #fmLevelSlider::-webkit-slider-thumb {
+            border-top-color: #ef4444 !important;
+        }
+        #noiseLevelSlider::-moz-range-thumb,
+        #modIndexSlider::-moz-range-thumb,
+        #driveSlider::-moz-range-thumb,
+        #foldSlider::-moz-range-thumb,
+        #bitDepthSlider::-moz-range-thumb,
+        #feedbackSlider::-moz-range-thumb,
+        #fmLevelSlider::-moz-range-thumb {
+            border-top-color: #ef4444 !important;
+        }
+        
+        /* Modulation Matrix - Purple */
+        #lfoRateSlider::-webkit-slider-thumb,
+        #lfoDepthSlider::-webkit-slider-thumb,
+        #lfoShapeSlider::-webkit-slider-thumb,
+        #shRateSlider::-webkit-slider-thumb,
+        #shSlewSlider::-webkit-slider-thumb,
+        #jitterAmountSlider::-webkit-slider-thumb,
+        #spasmSlider::-webkit-slider-thumb {
+            border-top-color: #a855f7 !important;
+        }
+        #lfoRateSlider::-moz-range-thumb,
+        #lfoDepthSlider::-moz-range-thumb,
+        #lfoShapeSlider::-moz-range-thumb,
+        #shRateSlider::-moz-range-thumb,
+        #shSlewSlider::-moz-range-thumb,
+        #jitterAmountSlider::-moz-range-thumb,
+        #spasmSlider::-moz-range-thumb {
+            border-top-color: #a855f7 !important;
+        }
+        
+        /* Modulation Routing - Purple (same family) */
+        #lfoToCutoffSlider::-webkit-slider-thumb,
+        #lfoToFoldSlider::-webkit-slider-thumb,
+        #shToCutoffSlider::-webkit-slider-thumb,
+        #shToFoldSlider::-webkit-slider-thumb,
+        #shToBitSlider::-webkit-slider-thumb,
+        #jitterToPitchSlider::-webkit-slider-thumb {
+            border-top-color: #9333ea !important;
+        }
+        #lfoToCutoffSlider::-moz-range-thumb,
+        #lfoToFoldSlider::-moz-range-thumb,
+        #shToCutoffSlider::-moz-range-thumb,
+        #shToFoldSlider::-moz-range-thumb,
+        #shToBitSlider::-moz-range-thumb,
+        #jitterToPitchSlider::-moz-range-thumb {
+            border-top-color: #9333ea !important;
+        }
+        
+        /* Heavy Color - Yellow-Orange */
+        #subLevelSlider::-webkit-slider-thumb,
+        #subDetuneSlider::-webkit-slider-thumb,
+        #satDriveSlider::-webkit-slider-thumb,
+        #satMixSlider::-webkit-slider-thumb,
+        #tiltSlider::-webkit-slider-thumb,
+        #postGainSlider::-webkit-slider-thumb,
+        #limiterSlider::-webkit-slider-thumb {
+            border-top-color: #fbbf24 !important;
+        }
+        #subLevelSlider::-moz-range-thumb,
+        #subDetuneSlider::-moz-range-thumb,
+        #satDriveSlider::-moz-range-thumb,
+        #satMixSlider::-moz-range-thumb,
+        #tiltSlider::-moz-range-thumb,
+        #postGainSlider::-moz-range-thumb,
+        #limiterSlider::-moz-range-thumb {
+            border-top-color: #fbbf24 !important;
+        }
+        
+        /* Chorus - Cyan */
+        #chorusMixSlider::-webkit-slider-thumb,
+        #chorusRateSlider::-webkit-slider-thumb,
+        #chorusDepthSlider::-webkit-slider-thumb {
+            border-top-color: #22d3ee !important;
+        }
+        #chorusMixSlider::-moz-range-thumb,
+        #chorusRateSlider::-moz-range-thumb,
+        #chorusDepthSlider::-moz-range-thumb {
+            border-top-color: #22d3ee !important;
+        }
+        
+        /* Module Header Color Coding */
+        .module:has(#synthTypeSelect) .module-header {
+            border-left: 3px solid #ff9d4d;
+        }
+        .module:has(#attackFader) .module-header {
+            border-left: 3px solid #4ade80;
+        }
+        .module:has(#cutoffFader) .module-header {
+            border-left: 3px solid #4da6ff;
+        }
+        .module:has(#driveSlider) .module-header {
+            border-left: 3px solid #ef4444;
+        }
+        .module:has(#lfoRateSlider) .module-header {
+            border-left: 3px solid #a855f7;
+        }
+        .module:has(#lfoToCutoffSlider) .module-header {
+            border-left: 3px solid #9333ea;
+        }
+        .module:has(#subLevelSlider) .module-header {
+            border-left: 3px solid #fbbf24;
+        }
+        .module:has(#chorusMixSlider) .module-header {
+            border-left: 3px solid #22d3ee;
+        }
+    </style>
+</head>
+<body>
+    <div id="browserWarning" style="display: none;">
+        ⚠️ AudioWorklet not supported
+    </div>
+
+    <div class="container">
+        <!-- ========== HEADER ========== -->
+        <header>
+            <div>
+                <h1>INDUSTRIAL SYNTH</h1>
+                <div class="subtitle">v2.2 BUILD 016 | WAVE SYNTHESIS</div>
+            </div>
+            <div class="header-controls">
+                <button id="startBtn">START ENGINE</button>
+                <button id="killBtn" class="kill" disabled>KILL</button>
+                <button id="riskBtn" style="display: none;">RISK</button>
+            </div>
+        </header>
+
+        <!-- ========== STATUS BAR ========== -->
+        <div class="status-bar">
+            <div class="status-indicator" id="status">OFFLINE</div>
+            <div class="status-indicator" id="noteStatus">Note: IDLE</div>
+            <div class="status-indicator" id="noiseStatus">Noise: Gate</div>
+            <div class="status-indicator" id="riskStatus" style="display: none;">SAFE</div>
+            <div class="status-indicator" id="ackIndicator">ACK: -</div>
+            <div class="status-indicator" id="droneControl" style="display: none;">
+                <label><input type="checkbox" id="droneToggle"> DRONE</label>
+            </div>
+            <button id="noiseGateBtn" style="display: none;">GATE</button>
+            <button id="noiseDroneBtn" style="display: none;">DRONE</button>
+        </div>
+
+        <!-- ========== TOP SECTION (Fixed 3-Column) ========== -->
+        <div class="top-grid">
+            <!-- LEFT COLUMN: Synthesis Core -->
+            <div class="synth-core-column">
+                <!-- Wave Synthesis -->
+                <div class="module">
+                    <div class="module-header">⚡ Wave Synthesis</div>
+                    <div class="module-body">
+                        <div class="control">
+                            <label>Type</label>
+                            <select id="synthTypeSelect" style="flex: 1;">
+                                <option value="fm">FM Synthesis</option>
+                                <option value="wavetable">Wavetable</option>
+                                <option value="additive">Additive</option>
+                                <option value="phase_dist">Phase Distortion</option>
+                                <option value="vector">Vector</option>
+                                <option value="granular">Granular</option>
+                                <option value="modal">Modal</option>
+                            </select>
+                        </div>
+                        
+                        <div id="fmParams">
+                            <div class="control">
+                                <label>FM Ratio</label>
+                                <input type="range" id="fmRatioSlider" min="0.25" max="8" value="1" step="0.01">
+                                <span class="value-display" id="fmRatioValue">1.00</span>
+                            </div>
+                        </div>
+                        
+                        <div id="wavetableParams" class="hidden">
+                            <div class="control">
+                                <label>Position</label>
+                                <input type="range" id="wavetablePosSlider" min="0" max="1" value="0" step="0.001">
+                                <span class="value-display" id="wavetablePosValue">0.000</span>
+                            </div>
+                            <div class="control">
+                                <label>Morph Speed</label>
+                                <input type="range" id="waveMorphSlider" min="0" max="10" value="0" step="0.1">
+                                <span class="value-display" id="waveMorphValue">0.0</span>
+                            </div>
+                        </div>
+                        
+                        <div id="additiveParams" class="hidden">
+                            <div class="control">
+                                <label>Harmonics</label>
+                                <input type="range" id="harmonicsCountSlider" min="1" max="32" value="8" step="1">
+                                <span class="value-display" id="harmonicsCountValue">8</span>
+                            </div>
+                            <div class="control">
+                                <label>Rolloff</label>
+                                <input type="range" id="harmonicRolloffSlider" min="0.1" max="2" value="1" step="0.01">
+                                <span class="value-display" id="harmonicRolloffValue">1.00</span>
+                            </div>
+                        </div>
+                        
+                        <div id="phaseDistParams" class="hidden">
+                            <div class="control">
+                                <label>PD Amount</label>
+                                <input type="range" id="phaseDistAmtSlider" min="0" max="1" value="0.5" step="0.01">
+                                <span class="value-display" id="phaseDistAmtValue">0.50</span>
+                            </div>
+                            <div class="control">
+                                <label>Resonance</label>
+                                <input type="range" id="phaseResonanceSlider" min="0" max="1" value="0.5" step="0.01">
+                                <span class="value-display" id="phaseResonanceValue">0.50</span>
+                            </div>
+                        </div>
+                        
+                        <div id="vectorParams" class="hidden">
+                            <div class="control">
+                                <label>Vector X</label>
+                                <input type="range" id="vectorXSlider" min="0" max="1" value="0.5" step="0.01">
+                                <span class="value-display" id="vectorXValue">0.50</span>
+                            </div>
+                            <div class="control">
+                                <label>Vector Y</label>
+                                <input type="range" id="vectorYSlider" min="0" max="1" value="0.5" step="0.01">
+                                <span class="value-display" id="vectorYValue">0.50</span>
+                            </div>
+                        </div>
+                        
+                        <div id="granularParams" class="hidden">
+                            <div class="control">
+                                <label>Grain Size</label>
+                                <input type="range" id="grainSizeSlider" min="1" max="100" value="50" step="1">
+                                <span class="value-display" id="grainSizeValue">50</span>
+                            </div>
+                            <div class="control">
+                                <label>Density</label>
+                                <input type="range" id="grainDensitySlider" min="1" max="50" value="10" step="1">
+                                <span class="value-display" id="grainDensityValue">10</span>
+                            </div>
+                        </div>
+                        
+                        <div id="modalParams" class="hidden">
+                            <div class="control">
+                                <label>Stiffness</label>
+                                <input type="range" id="modalStiffnessSlider" min="0.1" max="5" value="1" step="0.01">
+                                <span class="value-display" id="modalStiffnessValue">1.00</span>
+                            </div>
+                            <div class="control">
+                                <label>Inharmonic</label>
+                                <input type="range" id="modalInharmonicitySlider" min="0" max="1" value="0" step="0.01">
+                                <span class="value-display" id="modalInharmonicityValue">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ADSR Envelope -->
+                <div class="module">
+                    <div class="module-header">⌇ ADSR Envelope</div>
+                    <div class="module-body">
+                        <div class="faders-container">
+                            <div class="fader-group">
+                                <label>Attack</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="attackFader" class="vertical-fader" min="0.1" max="2000" value="1" step="0.1" orient="vertical">
+                                </div>
+                                <span class="value-display" id="attackValue">1.0</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Decay</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="decayFader" class="vertical-fader" min="1" max="5000" value="100" step="1" orient="vertical">
+                                </div>
+                                <span class="value-display" id="decayValue">100</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Sustain</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="sustainFader" class="vertical-fader" min="0" max="1" value="0.7" step="0.01" orient="vertical">
+                                </div>
+                                <span class="value-display" id="sustainValue">0.70</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Release</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="releaseFader" class="vertical-fader" min="1" max="5000" value="300" step="1" orient="vertical">
+                                </div>
+                                <span class="value-display" id="releaseValue">300</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filter Character -->
+                <div class="module">
+                    <div class="module-header">▲ Filter Character</div>
+                    <div class="module-body">
+                        <div class="faders-container">
+                            <div class="fader-group">
+                                <label>Cutoff</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="cutoffFader" class="vertical-fader" min="20" max="20000" value="2000" step="1" orient="vertical">
+                                </div>
+                                <span class="value-display" id="cutoffValue">2000</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Res</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="resonanceFader" class="vertical-fader" min="0.1" max="20" value="2" step="0.1" orient="vertical">
+                                </div>
+                                <span class="value-display" id="resonanceValue">2.0</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Q Char</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="filterQCharFader" class="vertical-fader" min="0.1" max="1" value="0.3" step="0.01" orient="vertical">
+                                </div>
+                                <span class="value-display" id="filterQCharValue">0.30</span>
+                            </div>
+                            <div class="fader-group">
+                                <label>Damp</label>
+                                <div class="fader-slot">
+                                    <input type="range" id="filterDampFader" class="vertical-fader" min="0" max="1" value="0.1" step="0.01" orient="vertical">
+                                </div>
+                                <span class="value-display" id="filterDampValue">0.10</span>
+                            </div>
+                        </div>
+                        <div class="control" style="margin-top: 6px;">
+                            <label>Drive</label>
+                            <input type="range" id="filterDriveSlider" min="1" max="10" value="1" step="0.1">
+                            <span class="value-display" id="filterDriveValue">1.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CENTER COLUMN: XY Performance Pad (Fixed Size) -->
+            <div class="xy-container">
+                <div id="xyPadContainer">
+                    <canvas id="xyPad" width="450" height="450"></canvas>
+                </div>
+                <div class="xy-info">
+                    <span>X: CUTOFF <span id="xyCutoff">2000 Hz</span></span>
+                    <span>Y: MOD INDEX <span id="xyModIndex">2.0</span></span>
+                </div>
+                <div id="xyNoteStatus">Release to stop</div>
+            </div>
+            
+            <!-- RIGHT COLUMN: Visualizers -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <div class="module">
+                    <div class="module-header">〜 Waveform</div>
+                    <div class="module-body" style="padding: 6px;">
+                        <canvas id="waveCanvas" width="300" height="110"></canvas>
+                    </div>
+                </div>
+                
+                <div class="module">
+                    <div class="module-header">▬ Spectrum</div>
+                    <div class="module-body" style="padding: 6px;">
+                        <canvas id="spectrumCanvas" width="300" height="110"></canvas>
+                    </div>
+                </div>
+                
+                <div class="module">
+                    <div class="module-header">◎ Phase</div>
+                    <div class="module-body" style="padding: 6px;">
+                        <canvas id="phaseCanvas" width="300" height="110"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== BOTTOM SECTION (Effect Rack) ========== -->
+        <div class="bottom-grid">
+            <!-- Distortion -->
+            <div class="module">
+                <div class="module-header">⚡ Distortion & Drive</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>Noise Level</label>
+                        <input type="range" id="noiseLevelSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="noiseLevelValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Mod Index</label>
+                        <input type="range" id="modIndexSlider" min="0" max="10" value="2" step="0.1">
+                        <span class="value-display" id="modIndexValue">2.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Drive</label>
+                        <input type="range" id="driveSlider" min="1" max="100" value="1" step="0.1">
+                        <span class="value-display" id="driveValue">1.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Wavefold</label>
+                        <input type="range" id="foldSlider" min="0" max="10" value="2" step="0.1">
+                        <span class="value-display" id="foldValue">2.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Bit Depth</label>
+                        <input type="range" id="bitDepthSlider" min="1" max="16" value="8" step="0.1">
+                        <span class="value-display" id="bitDepthValue">8.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Feedback</label>
+                        <input type="range" id="feedbackSlider" min="0" max="0.9" value="0.3" step="0.01">
+                        <span class="value-display" id="feedbackValue">0.30</span>
+                    </div>
+                    <div class="control">
+                        <label>FM Level</label>
+                        <input type="range" id="fmLevelSlider" min="0" max="1" value="1" step="0.01">
+                        <span class="value-display" id="fmLevelValue">1.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modulation -->
+            <div class="module">
+                <div class="module-header">◎ Modulation Matrix</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>LFO Rate</label>
+                        <input type="range" id="lfoRateSlider" min="0.05" max="20" value="1" step="0.01">
+                        <span class="value-display" id="lfoRateValue">1.00</span>
+                    </div>
+                    <div class="control">
+                        <label>LFO Depth</label>
+                        <input type="range" id="lfoDepthSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="lfoDepthValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>LFO Shape</label>
+                        <input type="range" id="lfoShapeSlider" min="0" max="2" value="0" step="1">
+                        <span class="value-display" id="lfoShapeValue">Sine</span>
+                    </div>
+                    <div class="control">
+                        <label>S&H Rate</label>
+                        <input type="range" id="shRateSlider" min="1" max="200" value="10" step="0.1">
+                        <span class="value-display" id="shRateValue">10.0</span>
+                    </div>
+                    <div class="control">
+                        <label>S&H Slew</label>
+                        <input type="range" id="shSlewSlider" min="0" max="50" value="5" step="0.1">
+                        <span class="value-display" id="shSlewValue">5.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Jitter</label>
+                        <input type="range" id="jitterAmountSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="jitterAmountValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>SPASM</label>
+                        <input type="range" id="spasmSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="spasmValue">0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mod Routing -->
+            <div class="module">
+                <div class="module-header">↔ Modulation Routing</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>LFO → Cutoff</label>
+                        <input type="range" id="lfoToCutoffSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="lfoToCutoffValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>LFO → Fold</label>
+                        <input type="range" id="lfoToFoldSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="lfoToFoldValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>S&H → Cutoff</label>
+                        <input type="range" id="shToCutoffSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="shToCutoffValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>S&H → Fold</label>
+                        <input type="range" id="shToFoldSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="shToFoldValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>S&H → Bit</label>
+                        <input type="range" id="shToBitSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="shToBitValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Jitter → Pitch</label>
+                        <input type="range" id="jitterToPitchSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="jitterToPitchValue">0.00</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Heavy Color -->
+            <div class="module">
+                <div class="module-header">⬢ Heavy Color</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>Sub Level</label>
+                        <input type="range" id="subLevelSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="subLevelValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Sub Detune</label>
+                        <input type="range" id="subDetuneSlider" min="-20" max="20" value="0" step="0.1">
+                        <span class="value-display" id="subDetuneValue">0.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Sat Drive</label>
+                        <input type="range" id="satDriveSlider" min="0.1" max="10" value="1" step="0.1">
+                        <span class="value-display" id="satDriveValue">1.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Sat Mix</label>
+                        <input type="range" id="satMixSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="satMixValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Tilt EQ</label>
+                        <input type="range" id="tiltSlider" min="-1" max="1" value="0" step="0.01">
+                        <span class="value-display" id="tiltValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Post Gain</label>
+                        <input type="range" id="postGainSlider" min="0" max="2" value="1" step="0.01">
+                        <span class="value-display" id="postGainValue">1.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Limiter</label>
+                        <input type="range" id="limiterSlider" min="0" max="1" value="0.5" step="0.01">
+                        <span class="value-display" id="limiterValue">0.50</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chorus -->
+            <div class="module">
+                <div class="module-header">∿ Chorus</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>Mix</label>
+                        <input type="range" id="chorusMixSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="chorusMixValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Rate</label>
+                        <input type="range" id="chorusRateSlider" min="0.05" max="5" value="0.5" step="0.01">
+                        <span class="value-display" id="chorusRateValue">0.50</span>
+                    </div>
+                    <div class="control">
+                        <label>Depth</label>
+                        <input type="range" id="chorusDepthSlider" min="0" max="25" value="10" step="0.1">
+                        <span class="value-display" id="chorusDepthValue">10.0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUILD 022: Industrial Shaper -->
+            <div class="module">
+                <div class="module-header">☢ INDUSTRIAL SHAPER</div>
+                <div class="module-body">
+                    <!-- Group A: Hard Sync -->
+                    <div class="control">
+                        <label>Sync Amount</label>
+                        <input type="range" id="syncAmountSlider" min="0" max="5" value="0" step="0.1">
+                        <span class="value-display" id="syncAmountValue">0.0</span>
+                    </div>
+                    
+                    <!-- Group B: Ring Modulation -->
+                    <div class="control">
+                        <label>Ring Mix</label>
+                        <input type="range" id="ringMixSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="ringMixValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Ring Ratio</label>
+                        <input type="range" id="ringRatioSlider" min="0.5" max="4" value="1" step="0.1">
+                        <span class="value-display" id="ringRatioValue">1.0</span>
+                    </div>
+                    
+                    <!-- Group C: Comb Filter -->
+                    <div class="control">
+                        <label>Comb Mix</label>
+                        <input type="range" id="combMixSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="combMixValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Comb Freq</label>
+                        <input type="range" id="combFreqSlider" min="50" max="1000" value="200" step="10">
+                        <span class="value-display" id="combFreqValue">200 Hz</span>
+                    </div>
+                    <div class="control">
+                        <label>Feedback</label>
+                        <input type="range" id="combFeedbackSlider" min="0" max="0.95" value="0.5" step="0.01">
+                        <span class="value-display" id="combFeedbackValue">0.50</span>
+                    </div>
+                    <div class="control">
+                        <label>Damping</label>
+                        <input type="range" id="combDampSlider" min="0" max="1" value="0.5" step="0.01">
+                        <span class="value-display" id="combDampValue">0.50</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ========== TOUCH KEYBOARD ========== -->
+        <div class="keyboard-module">
+
+            <!-- Chaos Engine -->
+            <div class="module">
+                <div class="module-header">🌀 Chaos Engine</div>
+                <div class="module-body">
+                    <div class="control">
+                        <label>Mode</label>
+                        <select id="chaosModeSelect" style="flex: 1;">
+                            <option value="logistic">Logistic Map</option>
+                            <option value="lorenz">Lorenz Attractor</option>
+                            <option value="double_pendulum">Double Pendulum</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label>Rate</label>
+                        <input type="range" id="chaosRateSlider" min="0.1" max="10" value="1" step="0.1">
+                        <span class="value-display" id="chaosRateValue">1.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Enable</label>
+                        <input type="checkbox" id="chaosEnabledCheckbox">
+                    </div>
+                    <div class="control">
+                        <label>Drift Amount</label>
+                        <input type="range" id="driftAmountSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="driftAmountValue">0.00</span>
+                    </div>
+                    <div class="control">
+                        <label>Drift Speed</label>
+                        <input type="range" id="driftSpeedSlider" min="0.1" max="10" value="1" step="0.1">
+                        <span class="value-display" id="driftSpeedValue">1.0</span>
+                    </div>
+                    <div class="control">
+                        <label>Drift Type</label>
+                        <select id="driftTypeSelect" style="flex: 1;">
+                            <option value="jitter">Jitter</option>
+                            <option value="wander">Wander</option>
+                        </select>
+                    </div>
+                    <div class="control">
+                        <label>Diffusion Mix</label>
+                        <input type="range" id="diffusionMixSlider" min="0" max="1" value="0" step="0.01">
+                        <span class="value-display" id="diffusionMixValue">0.00</span>
+                    </div>
+                </div>
+            </div>
+            <div class="module">
+                <div class="module-header">⌨ Touch Keyboard</div>
+                <div class="module-body" style="padding: 6px;">
+                    <div id="touchKeyboard"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // === CACHE BUSTER - BUILD ID ===
+        console.log('%c ✓ NEW FILE LOADED - BUILD 20260113-020.2 (with polyfill.js) ', 'background: #0f0; color: #000; font-size: 20px; font-weight: bold; padding: 10px;');
+        
+        // Industrial Synth - Heavy Edition v2.2
+        // Build: 2026-01-12 (Wave Synthesis Complete - 7 Types)
+        console.log('[Main] Script loaded - Heavy Edition v2.6 (Wave Synthesis + Filter Character ACTIVE)');
+        
+        // === Feature Detection (No UA-based blocking) ===
+        const ua = navigator.userAgent;
+        const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        const hasAudioContext = !!(window.AudioContext || window.webkitAudioContext);
+        const hasWebAssembly = typeof WebAssembly !== 'undefined';
+        const isSecure = window.isSecureContext;
+        
+        // Environment info (single line)
+        console.log(`[Env] 🔍 isSecure:${isSecure} | hasAudio:${hasAudioContext} | hasWasm:${hasWebAssembly} | iOS:${isIOS} | UA:${ua.substring(0, 50)}...`);
+        
+        // Check for HTTPS requirement (especially for iPad over LAN)
+        if (!isSecure && isIOS) {
+            console.warn('[Main] ⚠️ Not in secure context - AudioWorklet may fail on iOS');
+            const warningDiv = document.getElementById('browserWarning');
+            if (warningDiv) {
+                warningDiv.innerHTML = `
+                    <div style="font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 8px;">
+                        ⚠️ HTTPS REQUIRED FOR iOS
+                    </div>
+                    <div style="font-size: 13px; color: #fff; line-height: 1.6;">
+                        AudioWorklet requires secure context (HTTPS) on iOS/iPadOS.<br>
+                        Current URL is HTTP - this will likely fail.<br><br>
+                        <strong>Solutions:</strong><br>
+                        1. Use HTTPS (setup mkcert on PC)<br>
+                        2. Try anyway (may work on some iOS versions)<br>
+                        3. Use desktop Chrome instead
+                    </div>
+                `;
+                warningDiv.style.display = 'block';
+                warningDiv.style.background = 'linear-gradient(135deg, #ff3300 0%, #cc0000 100%)';
+            }
+        }
+        
+        // Basic capability check (informational only, not blocking)
+        if (!hasAudioContext) {
+            console.error('[Main] ❌ AudioContext not available');
+        }
+        if (!hasWebAssembly) {
+            console.error('[Main] ❌ WebAssembly not available');
+        }
+        
+        let audioContext;
+        let workletNode;
+        let analyserNode;
+        
+        // Note management
+        let nextNoteId = 1;
+        let activeNoteId = null;
+        let activeFreq = null;
+        const heldKeys = new Map();
+        let padGate = false;
+        let padNoteId = null;
+        
+        // Noise mode
+        let noiseGateFollow = true;
+        let noiseDroneEnabled = false;
+        
+        // RISK mode
+        let riskMode = false;
+        
+        // XY throttle
+        let xyUpdateScheduled = false;
+        let pendingXYUpdate = null;
+        
+        // ACK system
+        const ackIndicator = document.getElementById('ackIndicator');
+
+        // UI Elements
+        const startBtn = document.getElementById('startBtn');
+        const killBtn = document.getElementById('killBtn');
+        const status = document.getElementById('status');
+        const noteStatus = document.getElementById('noteStatus');
+        const noiseStatus = document.getElementById('noiseStatus');
+        const riskStatus = document.getElementById('riskStatus');
+        
+        const xyPad = document.getElementById('xyPad');
+        const ctx = xyPad.getContext('2d');
+        const waveCanvas = document.getElementById('waveCanvas');
+        const spectrumCanvas = document.getElementById('spectrumCanvas');
+        const phaseCanvas = document.getElementById('phaseCanvas');
+        const waveCtx = waveCanvas ? waveCanvas.getContext('2d') : null;
+        const spectrumCtx = spectrumCanvas ? spectrumCanvas.getContext('2d') : null;
+        const phaseCtx = phaseCanvas ? phaseCanvas.getContext('2d') : null;
+        const xyNoteStatus = document.getElementById('xyNoteStatus');
+        
+        // ADSR Faders
+        const attackFader = document.getElementById('attackFader');
+        const attackValue = document.getElementById('attackValue');
+        const decayFader = document.getElementById('decayFader');
+        const decayValue = document.getElementById('decayValue');
+        const sustainFader = document.getElementById('sustainFader');
+        const sustainValue = document.getElementById('sustainValue');
+        const releaseFader = document.getElementById('releaseFader');
+        const releaseValue = document.getElementById('releaseValue');
+        
+        // Filter Faders
+        const cutoffFader = document.getElementById('cutoffFader');
+        const cutoffValue = document.getElementById('cutoffValue');
+        const resonanceFader = document.getElementById('resonanceFader');
+        const resonanceValue = document.getElementById('resonanceValue');
+        
+        // Heavy Color Sliders
+        const subLevelSlider = document.getElementById('subLevelSlider');
+        const subLevelValue = document.getElementById('subLevelValue');
+        const subDetuneSlider = document.getElementById('subDetuneSlider');
+        const subDetuneValue = document.getElementById('subDetuneValue');
+        const satDriveSlider = document.getElementById('satDriveSlider');
+        const satDriveValue = document.getElementById('satDriveValue');
+        const satMixSlider = document.getElementById('satMixSlider');
+        const satMixValue = document.getElementById('satMixValue');
+        const tiltSlider = document.getElementById('tiltSlider');
+        const tiltValue = document.getElementById('tiltValue');
+        const postGainSlider = document.getElementById('postGainSlider');
+        const postGainValue = document.getElementById('postGainValue');
+        const limiterSlider = document.getElementById('limiterSlider');
+        const limiterValue = document.getElementById('limiterValue');
+        
+        // SPASM Sliders
+        const spasmSlider = document.getElementById('spasmSlider');
+        const spasmValue = document.getElementById('spasmValue');
+        const shRateSlider = document.getElementById('shRateSlider');
+        const shRateValue = document.getElementById('shRateValue');
+        const shSlewSlider = document.getElementById('shSlewSlider');
+        const shSlewValue = document.getElementById('shSlewValue');
+        const jitterAmountSlider = document.getElementById('jitterAmountSlider');
+        const jitterAmountValue = document.getElementById('jitterAmountValue');
+        
+        // FLOAT Sliders
+        const chorusMixSlider = document.getElementById('chorusMixSlider');
+        const chorusMixValue = document.getElementById('chorusMixValue');
+        const chorusRateSlider = document.getElementById('chorusRateSlider');
+        const chorusRateValue = document.getElementById('chorusRateValue');
+        const chorusDepthSlider = document.getElementById('chorusDepthSlider');
+        const chorusDepthValue = document.getElementById('chorusDepthValue');
+        const lfoRateSlider = document.getElementById('lfoRateSlider');
+        const lfoRateValue = document.getElementById('lfoRateValue');
+        
+        // MOD ASSIGN Sliders
+        const lfoToCutoffSlider = document.getElementById('lfoToCutoffSlider');
+        const lfoToCutoffValue = document.getElementById('lfoToCutoffValue');
+        const shToCutoffSlider = document.getElementById('shToCutoffSlider');
+        const shToCutoffValue = document.getElementById('shToCutoffValue');
+        const shToFoldSlider = document.getElementById('shToFoldSlider');
+        const shToFoldValue = document.getElementById('shToFoldValue');
+        const shToBitSlider = document.getElementById('shToBitSlider');
+        const shToBitValue = document.getElementById('shToBitValue');
+        
+        // Other Sliders
+        const driveSlider = document.getElementById('driveSlider');
+        const driveValue = document.getElementById('driveValue');
+        const noiseLevelSlider = document.getElementById('noiseLevelSlider');
+        const noiseLevelValue = document.getElementById('noiseLevelValue');
+        const fmLevelSlider = document.getElementById('fmLevelSlider');
+        const fmLevelValue = document.getElementById('fmLevelValue');
+        const modIndexSlider = document.getElementById('modIndexSlider');
+        const modIndexValue = document.getElementById('modIndexValue');
+        const feedbackSlider = document.getElementById('feedbackSlider');
+        const feedbackValue = document.getElementById('feedbackValue');
+        const foldSlider = document.getElementById('foldSlider');
+        const foldValue = document.getElementById('foldValue');
+        const bitDepthSlider = document.getElementById('bitDepthSlider');
+        
+        // Chaos Engine Elements
+        const chaosModeSelect = document.getElementById('chaosModeSelect');
+        const chaosRateSlider = document.getElementById('chaosRateSlider');
+        const chaosRateValue = document.getElementById('chaosRateValue');
+        const chaosEnabledCheckbox = document.getElementById('chaosEnabledCheckbox');
+        const driftAmountSlider = document.getElementById('driftAmountSlider');
+        const driftAmountValue = document.getElementById('driftAmountValue');
+        const driftSpeedSlider = document.getElementById('driftSpeedSlider');
+        const driftSpeedValue = document.getElementById('driftSpeedValue');
+        const driftTypeSelect = document.getElementById('driftTypeSelect');
+        const diffusionMixSlider = document.getElementById('diffusionMixSlider');
+        const diffusionMixValue = document.getElementById('diffusionMixValue');
+        const bitDepthValue = document.getElementById('bitDepthValue');
+        
+        // Buttons
+        const noiseGateBtn = document.getElementById('noiseGateBtn');
+        const noiseDroneBtn = document.getElementById('noiseDroneBtn');
+        const droneControl = document.getElementById('droneControl');
+        const droneToggle = document.getElementById('droneToggle');
+        const riskBtn = document.getElementById('riskBtn');
+        
+        // XY Display
+        const xyModIndex = document.getElementById('xyModIndex');
+        const xyCutoff = document.getElementById('xyCutoff');
+
+        // Trail
+        let trail = [];
+        const maxTrailLength = 20;
+
+        // Keymap
+        const keyMap = {
+            'z': { freq: 130.81, name: 'C3' },
+            's': { freq: 138.59, name: 'C#3' },
+            'x': { freq: 146.83, name: 'D3' },
+            'd': { freq: 155.56, name: 'D#3' },
+            'c': { freq: 164.81, name: 'E3' },
+            'v': { freq: 174.61, name: 'F3' },
+            'g': { freq: 185.00, name: 'F#3' },
+            'b': { freq: 196.00, name: 'G3' },
+            'h': { freq: 207.65, name: 'G#3' },
+            'n': { freq: 220.00, name: 'A3' },
+            'j': { freq: 233.08, name: 'A#3' },
+            'm': { freq: 246.94, name: 'B3' },
+            ',': { freq: 261.63, name: 'C4' },
+            'l': { freq: 277.18, name: 'C#4' },
+            '.': { freq: 293.66, name: 'D4' },
+            ';': { freq: 311.13, name: 'D#4' },
+            '/': { freq: 329.63, name: 'E4' },
+            '\\': { freq: 349.23, name: 'F4' },
+        };
+        
+        const codeMap = {
+            'KeyZ': 'z', 'KeyS': 's', 'KeyX': 'x', 'KeyD': 'd',
+            'KeyC': 'c', 'KeyV': 'v', 'KeyG': 'g', 'KeyB': 'b',
+            'KeyH': 'h', 'KeyN': 'n', 'KeyJ': 'j', 'KeyM': 'm',
+            'Comma': ',', 'KeyL': 'l', 'Period': '.', 'Semicolon': ';',
+            'Slash': '/', 'Backslash': '\\',
+        };
+        
+        // === Touch Keyboard Generation ===
+        const touchKeyboard = document.getElementById('touchKeyboard');
+        const touchKeyStates = new Map(); // Track active touch keys
+        
+        // Generate touch keyboard (2 octaves)
+        const touchKeys = [
+            { key: 'z', note: 'C3' },
+            { key: 's', note: 'C#3' },
+            { key: 'x', note: 'D3' },
+            { key: 'd', note: 'D#3' },
+            { key: 'c', note: 'E3' },
+            { key: 'v', note: 'F3' },
+            { key: 'g', note: 'F#3' },
+            { key: 'b', note: 'G3' },
+            { key: 'h', note: 'G#3' },
+            { key: 'n', note: 'A3' },
+            { key: 'j', note: 'A#3' },
+            { key: 'm', note: 'B3' },
+            { key: ',', note: 'C4' },
+            { key: 'l', note: 'C#4' },
+        ];
+        
+        touchKeys.forEach(({ key, note }) => {
+            const btn = document.createElement('button');
+            btn.className = 'touch-key';
+            btn.textContent = note;
+            btn.dataset.key = key;
+            
+            // Touch events (primary)
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (!workletNode) return;
+                
+                btn.classList.add('active');
+                const noteInfo = keyMap[key];
+                if (noteInfo && !touchKeyStates.has(key)) {
+                    const savedNoteId = nextNoteId;
+                    touchKeyStates.set(key, { noteId: savedNoteId, freq: noteInfo.freq });
+                    handleNoteOn(noteInfo.freq, `Touch:${noteInfo.name}`);
+                }
+            });
+            
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                btn.classList.remove('active');
+                
+                const state = touchKeyStates.get(key);
+                if (state) {
+                    handleNoteOff(state.noteId, `Touch:${keyMap[key].name}`);
+                    touchKeyStates.delete(key);
+                }
+            });
+            
+            btn.addEventListener('touchcancel', (e) => {
+                e.preventDefault();
+                btn.classList.remove('active');
+                
+                const state = touchKeyStates.get(key);
+                if (state) {
+                    handleNoteOff(state.noteId, `Touch:${keyMap[key].name}`);
+                    touchKeyStates.delete(key);
+                }
+            });
+            
+            // Mouse events (fallback for desktop testing)
+            btn.addEventListener('mousedown', (e) => {
+                e.preventDefault();
+                if (!workletNode) return;
+                
+                btn.classList.add('active');
+                const noteInfo = keyMap[key];
+                if (noteInfo && !touchKeyStates.has(key)) {
+                    const savedNoteId = nextNoteId;
+                    touchKeyStates.set(key, { noteId: savedNoteId, freq: noteInfo.freq });
+                    handleNoteOn(noteInfo.freq, `Mouse:${noteInfo.name}`);
+                }
+            });
+            
+            btn.addEventListener('mouseup', (e) => {
+                e.preventDefault();
+                btn.classList.remove('active');
+                
+                const state = touchKeyStates.get(key);
+                if (state) {
+                    handleNoteOff(state.noteId, `Mouse:${keyMap[key].name}`);
+                    touchKeyStates.delete(key);
+                }
+            });
+            
+            btn.addEventListener('mouseleave', () => {
+                btn.classList.remove('active');
+                
+                const state = touchKeyStates.get(key);
+                if (state) {
+                    handleNoteOff(state.noteId, `Mouse:${keyMap[key].name}`);
+                    touchKeyStates.delete(key);
+                }
+            });
+            
+            touchKeyboard.appendChild(btn);
+        });
+        
+        console.log('[TouchKeyboard] Generated', touchKeys.length, 'keys');
+        
+        // === Fader Touch Enhancement ===
+        // Add touch event support to all vertical faders
+        document.querySelectorAll('.vertical').forEach(fader => {
+            let touchActive = false;
+            
+            fader.addEventListener('touchstart', (e) => {
+                touchActive = true;
+            });
+            
+            fader.addEventListener('touchend', () => {
+                touchActive = false;
+            });
+            
+            fader.addEventListener('touchmove', (e) => {
+                if (!touchActive) return;
+                e.preventDefault(); // Prevent scroll
+            });
+        });
+        
+        // Add touch support to all horizontal sliders
+        document.querySelectorAll('input[type="range"]:not(.vertical)').forEach(slider => {
+            slider.addEventListener('touchstart', (e) => {
+                // Allow native slider handling
+            });
+            
+            slider.addEventListener('touchmove', (e) => {
+                // Allow native slider handling, but prevent page scroll
+                e.stopPropagation();
+            });
+        });
+
+        // Value update handlers
+        attackFader.addEventListener('input', (e) => {
+            attackValue.textContent = parseFloat(e.target.value).toFixed(1) + 'ms';
+        });
+        decayFader.addEventListener('input', (e) => {
+            decayValue.textContent = parseFloat(e.target.value).toFixed(0) + 'ms';
+        });
+        sustainFader.addEventListener('input', (e) => {
+            sustainValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        releaseFader.addEventListener('input', (e) => {
+            releaseValue.textContent = parseFloat(e.target.value).toFixed(0) + 'ms';
+        });
+        cutoffFader.addEventListener('input', (e) => {
+            cutoffValue.textContent = e.target.value + 'Hz';
+        });
+        resonanceFader.addEventListener('input', (e) => {
+            resonanceValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        
+        // Filter Q Character
+        filterQCharFader.addEventListener('input', (e) => {
+            filterQCharValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Filter Damping
+        filterDampFader.addEventListener('input', (e) => {
+            filterDampValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Filter Drive
+        filterDriveSlider.addEventListener('input', (e) => {
+            filterDriveValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        
+        subLevelSlider.addEventListener('input', (e) => {
+            subLevelValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        subDetuneSlider.addEventListener('input', (e) => {
+            subDetuneValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        satDriveSlider.addEventListener('input', (e) => {
+            satDriveValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        satMixSlider.addEventListener('input', (e) => {
+            satMixValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        tiltSlider.addEventListener('input', (e) => {
+            tiltValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        postGainSlider.addEventListener('input', (e) => {
+            postGainValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        limiterSlider.addEventListener('input', (e) => {
+            limiterValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // === Wave Synthesis ===
+        synthTypeSelect.addEventListener('change', (e) => {
+            // Hide all parameter panels
+            document.getElementById('fmParams').style.display = 'none';
+            document.getElementById('wavetableParams').style.display = 'none';
+            document.getElementById('additiveParams').style.display = 'none';
+            document.getElementById('phaseDistParams').style.display = 'none';
+            document.getElementById('vectorParams').style.display = 'none';
+            document.getElementById('granularParams').style.display = 'none';
+            document.getElementById('modalParams').style.display = 'none';
+            
+            // Show selected panel and apply demo preset
+            const synthType = e.target.value;
+            switch(synthType) {
+                case 'fm':
+                    document.getElementById('fmParams').style.display = 'block';
+                    // FM Demo Preset: Classic bright FM sound
+                    fmRatioSlider.value = 3.5;
+                    fmRatioValue.textContent = '3.50';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'fm-ratio', value: 3.5 });
+                    }
+                    break;
+                    
+                case 'wavetable':
+                    document.getElementById('wavetableParams').style.display = 'block';
+                    // Wavetable Demo Preset: Triangle-Saw blend (clearly different from sine)
+                    wavetablePosSlider.value = 0.5;
+                    wavetablePosValue.textContent = '0.500';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'wavetable-position', value: 0.5 });
+                    }
+                    console.log('[WaveSynth] Wavetable preset: Position = 0.5 (Triangle-Saw)');
+                    break;
+                    
+                case 'additive':
+                    document.getElementById('additiveParams').style.display = 'block';
+                    // Additive Demo Preset: Organ-like sound
+                    harmonicsCountSlider.value = 8;
+                    harmonicsCountValue.textContent = '8';
+                    harmonicRolloffSlider.value = 0.8;
+                    harmonicRolloffValue.textContent = '0.80';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'harmonics-count', value: 8 });
+                        workletNode.port.postMessage({ type: 'harmonic-rolloff', value: 0.8 });
+                    }
+                    break;
+                    
+                case 'phase_dist':
+                    document.getElementById('phaseDistParams').style.display = 'block';
+                    // Phase Distortion Demo Preset: Strong asymmetry (Casio CZ style)
+                    phaseDistAmtSlider.value = 0.8;
+                    phaseDistAmtValue.textContent = '0.80';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'phase-dist-amount', value: 0.8 });
+                    }
+                    console.log('[WaveSynth] Phase Dist preset: Amount = 0.8 (strong effect)');
+                    break;
+                    
+                case 'vector':
+                    document.getElementById('vectorParams').style.display = 'block';
+                    // Vector Demo Preset: Saw + Noise blend (harsh industrial)
+                    vectorXSlider.value = 0.7;
+                    vectorXValue.textContent = '0.70';
+                    vectorYSlider.value = 0.3;
+                    vectorYValue.textContent = '0.30';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'vector-x', value: 0.7 });
+                        workletNode.port.postMessage({ type: 'vector-y', value: 0.3 });
+                    }
+                    console.log('[WaveSynth] Vector preset: X=0.7, Y=0.3 (Saw-heavy)');
+                    break;
+                    
+                case 'granular':
+                    document.getElementById('granularParams').style.display = 'block';
+                    // Granular Demo Preset: Short grains, high density
+                    grainSizeSlider.value = 30;
+                    grainSizeValue.textContent = '30';
+                    grainDensitySlider.value = 0.8;
+                    grainDensityValue.textContent = '0.80';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'grain-size', value: 30 });
+                        workletNode.port.postMessage({ type: 'grain-density', value: 0.8 });
+                    }
+                    console.log('[WaveSynth] Granular preset: Size=30ms, Density=0.8');
+                    break;
+                    
+                case 'modal':
+                    document.getElementById('modalParams').style.display = 'block';
+                    // Modal Demo Preset: Metallic bell (high inharmonicity)
+                    modalStiffnessSlider.value = 0.4;
+                    modalStiffnessValue.textContent = '0.40';
+                    modalInharmonicitySlider.value = 0.7;
+                    modalInharmonicityValue.textContent = '0.70';
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'modal-stiffness', value: 0.4 });
+                        workletNode.port.postMessage({ type: 'modal-inharmonicity', value: 0.7 });
+                    }
+                    console.log('[WaveSynth] Modal preset: Stiffness=0.4, Inharmonicity=0.7 (bell)');
+                    break;
+            }
+            
+            console.log('[WaveSynth] Type changed:', synthType, '(with demo preset)');
+        });
+        
+        // FM parameters
+        fmRatioSlider.addEventListener('input', (e) => {
+            fmRatioValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Wavetable parameters
+        wavetablePosSlider.addEventListener('input', (e) => {
+            wavetablePosValue.textContent = parseFloat(e.target.value).toFixed(3);
+        });
+        waveMorphSlider.addEventListener('input', (e) => {
+            waveMorphValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        
+        // Additive parameters
+        harmonicsCountSlider.addEventListener('input', (e) => {
+            harmonicsCountValue.textContent = e.target.value;
+        });
+        harmonicRolloffSlider.addEventListener('input', (e) => {
+            harmonicRolloffValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Phase Distortion parameters
+        phaseDistAmtSlider.addEventListener('input', (e) => {
+            phaseDistAmtValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        phaseResonanceSlider.addEventListener('input', (e) => {
+            phaseResonanceValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Vector parameters
+        vectorXSlider.addEventListener('input', (e) => {
+            vectorXValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        vectorYSlider.addEventListener('input', (e) => {
+            vectorYValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // Granular parameters
+        grainSizeSlider.addEventListener('input', (e) => {
+            grainSizeValue.textContent = e.target.value;
+        });
+        grainDensitySlider.addEventListener('input', (e) => {
+            grainDensityValue.textContent = e.target.value;
+        });
+        
+        // Modal parameters
+        modalStiffnessSlider.addEventListener('input', (e) => {
+            modalStiffnessValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        modalInharmonicitySlider.addEventListener('input', (e) => {
+            modalInharmonicityValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        
+        driveSlider.addEventListener('input', (e) => {
+            driveValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        noiseLevelSlider.addEventListener('input', (e) => {
+            noiseLevelValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        fmLevelSlider.addEventListener('input', (e) => {
+            fmLevelValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        modIndexSlider.addEventListener('input', (e) => {
+            modIndexValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        feedbackSlider.addEventListener('input', (e) => {
+            feedbackValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        foldSlider.addEventListener('input', (e) => {
+            foldValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        bitDepthSlider.addEventListener('input', (e) => {
+            bitDepthValue.textContent = e.target.value;
+        });
+        
+        // SPASM value handlers
+        spasmSlider.addEventListener('input', (e) => {
+            spasmValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        shRateSlider.addEventListener('input', (e) => {
+            shRateValue.textContent = e.target.value;
+        });
+        shSlewSlider.addEventListener('input', (e) => {
+            shSlewValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        jitterAmountSlider.addEventListener('input', (e) => {
+            jitterAmountValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // FLOAT value handlers
+        chorusMixSlider.addEventListener('input', (e) => {
+            chorusMixValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        chorusRateSlider.addEventListener('input', (e) => {
+            chorusRateValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        // BUILD 022: Industrial Shaper Event Listeners
+        
+        // Hard Sync
+        const syncAmountSlider = document.getElementById('syncAmountSlider');
+        const syncAmountValue = document.getElementById('syncAmountValue');
+        syncAmountSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            syncAmountValue.textContent = value.toFixed(1);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'sync-amount', value: value });
+            }
+        });
+        
+        // Ring Modulation
+        const ringMixSlider = document.getElementById('ringMixSlider');
+        const ringMixValue = document.getElementById('ringMixValue');
+        ringMixSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            ringMixValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'ring-mix', value: value });
+            }
+        });
+        
+        const ringRatioSlider = document.getElementById('ringRatioSlider');
+        const ringRatioValue = document.getElementById('ringRatioValue');
+        ringRatioSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            ringRatioValue.textContent = value.toFixed(1);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'ring-ratio', value: value });
+            }
+        });
+        
+        // Comb Filter
+        const combMixSlider = document.getElementById('combMixSlider');
+        const combMixValue = document.getElementById('combMixValue');
+        combMixSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combMixValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-mix', value: value });
+            }
+        });
+        
+        const combFreqSlider = document.getElementById('combFreqSlider');
+        const combFreqValue = document.getElementById('combFreqValue');
+        combFreqSlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            combFreqValue.textContent = value + ' Hz';
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-freq', value: value });
+            }
+        });
+        
+        const combFeedbackSlider = document.getElementById('combFeedbackSlider');
+        const combFeedbackValue = document.getElementById('combFeedbackValue');
+        combFeedbackSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combFeedbackValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-feedback', value: value });
+            }
+        });
+        
+        const combDampSlider = document.getElementById('combDampSlider');
+        const combDampValue = document.getElementById('combDampValue');
+        combDampSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combDampValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-damp', value: value });
+            }
+        });
+        
+
+        chorusDepthSlider.addEventListener('input', (e) => {
+            chorusDepthValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        lfoRateSlider.addEventListener('input', (e) => {
+            lfoRateValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        
+        // MOD ASSIGN value handlers
+        lfoToCutoffSlider.addEventListener('input', (e) => {
+            lfoToCutoffValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        shToCutoffSlider.addEventListener('input', (e) => {
+            shToCutoffValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        shToFoldSlider.addEventListener('input', (e) => {
+            shToFoldValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+        shToBitSlider.addEventListener('input', (e) => {
+            shToBitValue.textContent = parseFloat(e.target.value).toFixed(2);
+        });
+
+        // Noise mode
+        noiseGateBtn.addEventListener('click', () => {
+            noiseGateFollow = true;
+            noiseGateBtn.classList.add('active');
+            noiseDroneBtn.classList.remove('active');
+            droneControl.style.display = 'none';
+            noiseStatus.textContent = 'Noise: Gate Follow';
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'noise-gate-follow', value: true });
+            }
+        });
+        
+        noiseDroneBtn.addEventListener('click', () => {
+            noiseGateFollow = false;
+            noiseDroneBtn.classList.add('active');
+            noiseGateBtn.classList.remove('active');
+            droneControl.style.display = 'block';
+            noiseStatus.textContent = 'Noise: Drone Mode';
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'noise-gate-follow', value: false });
+            }
+        });
+        
+        droneToggle.addEventListener('click', () => {
+            noiseDroneEnabled = !noiseDroneEnabled;
+            droneToggle.textContent = `Drone: ${noiseDroneEnabled ? 'ON' : 'OFF'}`;
+            droneToggle.classList.toggle('active', noiseDroneEnabled);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'noise-drone', value: noiseDroneEnabled });
+            }
+        });
+        
+        // RISK mode
+        riskBtn.addEventListener('click', () => {
+            riskMode = !riskMode;
+            if (riskMode) {
+                feedbackSlider.max = 0.98;
+                riskBtn.classList.add('active');
+                riskStatus.textContent = 'Feedback: RISK (0.98)';
+                riskStatus.classList.add('active');
+            } else {
+                feedbackSlider.max = 0.9;
+                if (parseFloat(feedbackSlider.value) > 0.9) {
+                    feedbackSlider.value = 0.9;
+                    feedbackValue.textContent = '0.90';
+                }
+                riskBtn.classList.remove('active');
+                riskStatus.textContent = 'Feedback: SAFE';
+                riskStatus.classList.remove('active');
+            }
+        });
+
+        // === ACK System ===
+        function sendParam(type, payload) {
+            if (!workletNode) return;
+            workletNode.port.postMessage({ type, ...payload });
+            console.log('[Send]', type, payload);
+        }
+        
+        function showAck() {
+            if (ackIndicator) {
+                ackIndicator.style.opacity = '1';
+                setTimeout(() => { ackIndicator.style.opacity = '0'; }, 200);
+            }
+        }
+        
+        // === Scope Drawing ===
+        let scopeFrameCount = 0;
+        function drawScopes() {
+            if (!analyserNode || !waveCanvas || !spectrumCanvas || !phaseCanvas) {
+                requestAnimationFrame(drawScopes);
+                return;
+            }
+            
+            // フレームスキップ（60fps → 30fps）でCPU負荷軽減
+            scopeFrameCount++;
+            if (scopeFrameCount % 2 !== 0) {
+                requestAnimationFrame(drawScopes);
+                return;
+            }
+            
+            const bufferLength = analyserNode.fftSize;
+            const timeArray = new Float32Array(bufferLength);
+            const freqArray = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getFloatTimeDomainData(timeArray);
+            analyserNode.getByteFrequencyData(freqArray);
+            
+            // データチェック
+            let hasSignal = false;
+            for (let i = 0; i < bufferLength; i++) {
+                if (Math.abs(timeArray[i]) > 0.001) {
+                    hasSignal = true;
+                    break;
+                }
+            }
+            
+            // === 1. Waveform ===
+            const waveW = waveCanvas.width;
+            const waveH = waveCanvas.height;
+            waveCtx.fillStyle = '#000';
+            waveCtx.fillRect(0, 0, waveW, waveH);
+            
+            if (hasSignal) {
+                waveCtx.strokeStyle = '#0f0';
+                waveCtx.lineWidth = 1.5;
+                waveCtx.beginPath();
+                const waveSlice = waveW / Math.min(bufferLength, 512);
+                for (let i = 0; i < Math.min(bufferLength, 512); i++) {
+                    const v = timeArray[i];
+                    const x = i * waveSlice;
+                    const y = (0.5 - v * 0.5) * waveH;
+                    if (i === 0) {
+                        waveCtx.moveTo(x, y);
+                    } else {
+                        waveCtx.lineTo(x, y);
+                    }
+                }
+                waveCtx.stroke();
+            }
+            
+            // === 2. Spectrum (FFT) - Filled bars with gradient ===
+            const specW = spectrumCanvas.width;
+            const specH = spectrumCanvas.height;
+            spectrumCtx.fillStyle = '#000';
+            spectrumCtx.fillRect(0, 0, specW, specH);
+            
+            // Filled bars for clear frequency distribution
+            const barWidth = specW / (freqArray.length / 2);
+            for (let i = 0; i < freqArray.length / 2; i++) {
+                const barHeight = (freqArray[i] / 255) * specH;
+                const x = i * barWidth;
+                const y = specH - barHeight;
+                
+                // Create gradient for each bar
+                const gradient = spectrumCtx.createLinearGradient(x, y, x, specH);
+                gradient.addColorStop(0, '#ff9d4d');
+                gradient.addColorStop(0.6, '#ff7020');
+                gradient.addColorStop(1, '#cc5500');
+                
+                spectrumCtx.fillStyle = gradient;
+                spectrumCtx.fillRect(x, y, Math.max(1, barWidth - 0.5), barHeight);
+            }
+            
+            // === 3. Phase (Lissajous) - 中央基準 ===
+            const phaseW = phaseCanvas.width;
+            const phaseH = phaseCanvas.height;
+            const centerX = phaseW / 2;
+            const centerY = phaseH / 2;
+            phaseCtx.fillStyle = '#000';
+            phaseCtx.fillRect(0, 0, phaseW, phaseH);
+            
+            // 中央十字線
+            phaseCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            phaseCtx.lineWidth = 1;
+            phaseCtx.beginPath();
+            phaseCtx.moveTo(centerX, 0);
+            phaseCtx.lineTo(centerX, phaseH);
+            phaseCtx.moveTo(0, centerY);
+            phaseCtx.lineTo(phaseW, centerY);
+            phaseCtx.stroke();
+            
+            if (hasSignal) {
+                // Calculate DC offset
+                let sumLeft = 0, sumRight = 0, count = 0;
+                const sampleCount = Math.min(bufferLength - 10, 512);
+                
+                for (let i = 0; i < sampleCount; i += 2) {
+                    sumLeft += timeArray[i];
+                    sumRight += timeArray[i + 10];
+                    count++;
+                }
+                
+                const dcLeft = sumLeft / count;
+                const dcRight = sumRight / count;
+                
+                // Draw with DC offset removed
+                phaseCtx.strokeStyle = '#0ff';
+                phaseCtx.lineWidth = 1.5;
+                phaseCtx.beginPath();
+                
+                for (let i = 0; i < sampleCount; i += 2) {
+                    // Remove DC offset
+                    const left = timeArray[i] - dcLeft;
+                    const right = timeArray[i + 10] - dcRight;
+                    
+                    // Center-based coordinates with tighter scaling
+                    const x = centerX + left * (phaseW * 0.42);
+                    const y = centerY - right * (phaseH * 0.42);
+                    
+                    if (i === 0) {
+                        phaseCtx.moveTo(x, y);
+                    } else {
+                        phaseCtx.lineTo(x, y);
+                    }
+                }
+                phaseCtx.stroke();
+                
+                // Debug log (first frame only)
+                if (scopeFrameCount === 2) {
+                    console.log('[Lissajous] DC Offset - Left:', dcLeft.toFixed(6), 'Right:', dcRight.toFixed(6));
+                    console.log('[Lissajous] Signal range - Left:', 
+                        Math.min(...Array.from(timeArray).slice(0, sampleCount)).toFixed(3),
+                        'to',
+                        Math.max(...Array.from(timeArray).slice(0, sampleCount)).toFixed(3)
+                    );
+                }
+            }
+            
+            requestAnimationFrame(drawScopes);
+        }
+
+        // XY Pad
+        function drawXYPad() {
+            // 完全クリア（残像なし）
+            ctx.clearRect(0, 0, xyPad.width, xyPad.height);
+            
+            // 軌跡描画（速度対応）
+            if (trail.length > 0) {
+                ctx.strokeStyle = '#ff9d4d';
+                ctx.lineWidth = 3;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ff9d4d';
+                
+                ctx.beginPath();
+                for (let i = 0; i < trail.length; i++) {
+                    const alpha = (i + 1) / trail.length;
+                    ctx.globalAlpha = alpha * 0.8;
+                    if (i === 0) {
+                        ctx.moveTo(trail[i].x, trail[i].y);
+                    } else {
+                        ctx.lineTo(trail[i].x, trail[i].y);
+                    }
+                }
+                ctx.stroke();
+                ctx.globalAlpha = 1.0;
+                ctx.shadowBlur = 0;
+            }
+            
+            // 現在位置 + 十字カーソル
+            if (trail.length > 0) {
+                const last = trail[trail.length - 1];
+                
+                // 十字線
+                ctx.strokeStyle = 'rgba(255, 157, 77, 0.5)';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 3]);
+                ctx.beginPath();
+                ctx.moveTo(last.x, 0);
+                ctx.lineTo(last.x, xyPad.height);
+                ctx.moveTo(0, last.y);
+                ctx.lineTo(xyPad.width, last.y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // グロー + ドット
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff9d4d';
+                ctx.fillStyle = '#ff9d4d';
+                ctx.beginPath();
+                ctx.arc(last.x, last.y, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // 中心ドット
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function scheduleXYUpdate(x, y) {
+            pendingXYUpdate = { x, y };
+            if (!xyUpdateScheduled) {
+                xyUpdateScheduled = true;
+                requestAnimationFrame(() => {
+                    if (pendingXYUpdate) {
+                        const { x, y } = pendingXYUpdate;
+                        applyXYUpdate(x, y);
+                        pendingXYUpdate = null;
+                    }
+                    xyUpdateScheduled = false;
+                });
+            }
+        }
+        
+        function applyXYUpdate(x, y) {
+            const modIndex = (x / xyPad.width) * 10.0;
+            const cutoff = 20 + (1.0 - (y / xyPad.height)) * 9980;
+            
+            modIndexSlider.value = modIndex;
+            modIndexValue.textContent = modIndex.toFixed(1);
+            xyModIndex.textContent = modIndex.toFixed(1);
+            
+            cutoffFader.value = cutoff;
+            cutoffValue.textContent = Math.round(cutoff) + 'Hz';
+            xyCutoff.textContent = Math.round(cutoff);
+            
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'cutoff', value: cutoff });
+                // Phase 2: modIndexもリアルタイム送信
+                workletNode.port.postMessage({ type: 'mod-index', value: modIndex });
+            }
+            
+            trail.push({ x, y });
+            if (trail.length > maxTrailLength) {
+                trail.shift();
+            }
+            
+            drawXYPad();
+        }
+
+        function handleNoteOn(freq, source) {
+            if (!workletNode) return;
+            
+            if (activeNoteId !== null) {
+                workletNode.port.postMessage({ type: 'note-off', noteId: activeNoteId });
+            }
+            
+            activeNoteId = nextNoteId++;
+            activeFreq = freq;
+            const modIdx = parseFloat(modIndexValue.textContent);
+            
+            workletNode.port.postMessage({
+                type: 'note-on',
+                noteId: activeNoteId,
+                frequency: freq,
+                modIndex: modIdx
+            });
+            
+            console.log('[Main] ✓ Note ON - ID:', activeNoteId, 'Freq:', freq, 'Source:', source);
+            updateNoteStatus();
+        }
+
+        function handleNoteOff(noteId, source) {
+            if (!workletNode || noteId === null) return;
+            
+            workletNode.port.postMessage({ type: 'note-off', noteId });
+            console.log('[Main] ✓ Note OFF - ID:', noteId, 'Source:', source);
+            
+            if (noteId === activeNoteId) {
+                activeNoteId = null;
+                activeFreq = null;
+                updateNoteStatus();
+            }
+        }
+        
+        function updateNoteStatus() {
+            if (activeNoteId !== null) {
+                noteStatus.textContent = `Note: PLAYING (ID:${activeNoteId})`;
+                noteStatus.classList.add('active');
+                if (xyNoteStatus) xyNoteStatus.textContent = `PLAY:${activeNoteId}`;
+            } else {
+                noteStatus.textContent = 'Note: IDLE';
+                noteStatus.classList.remove('active');
+                if (xyNoteStatus) xyNoteStatus.textContent = 'IDLE';
+            }
+        }
+
+        function panicAllOff(reason) {
+            console.warn('[Main] ⚠⚠⚠ PANIC:', reason);
+            
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'panic' });
+            }
+            
+            activeNoteId = null;
+            activeFreq = null;
+            heldKeys.clear();
+            padGate = false;
+            padNoteId = null;
+            trail = [];
+            
+            drawXYPad();
+            updateNoteStatus();
+        }
+
+        // XY Pad events
+        xyPad.addEventListener('mousedown', (e) => {
+            if (!workletNode) return;
+            padGate = true;
+            const rect = xyPad.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            scheduleXYUpdate(x, y);
+            
+            if (heldKeys.size === 0) {
+                const freq = 220;
+                padNoteId = activeNoteId;
+                handleNoteOn(freq, 'XY-Pad');
+            }
+        });
+
+        xyPad.addEventListener('mousemove', (e) => {
+            if (!padGate) return;
+            const rect = xyPad.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            scheduleXYUpdate(x, y);
+        });
+
+        xyPad.addEventListener('mouseup', () => {
+            if (padGate) {
+                padGate = false;
+                if (padNoteId !== null && padNoteId === activeNoteId && heldKeys.size === 0) {
+                    handleNoteOff(padNoteId, 'XY-Pad');
+                    padNoteId = null;
+                }
+                trail = [];
+                drawXYPad();
+            }
+        });
+
+        xyPad.addEventListener('mouseleave', () => {
+            if (padGate) {
+                padGate = false;
+                if (padNoteId !== null && padNoteId === activeNoteId && heldKeys.size === 0) {
+                    handleNoteOff(padNoteId, 'XY-Pad');
+                    padNoteId = null;
+                }
+                trail = [];
+                drawXYPad();
+            }
+        });
+
+        xyPad.addEventListener('touchstart', (e) => {
+            if (!workletNode) return;
+            e.preventDefault();
+            padGate = true;
+            const rect = xyPad.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            scheduleXYUpdate(x, y);
+            
+            if (heldKeys.size === 0) {
+                const freq = 220;
+                padNoteId = activeNoteId;
+                handleNoteOn(freq, 'XY-Pad-Touch');
+            }
+        });
+
+        xyPad.addEventListener('touchmove', (e) => {
+            if (!padGate) return;
+            e.preventDefault();
+            const rect = xyPad.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            scheduleXYUpdate(x, y);
+        });
+
+        xyPad.addEventListener('touchend', (e) => {
+            if (padGate) {
+                e.preventDefault();
+                padGate = false;
+                if (padNoteId !== null && padNoteId === activeNoteId && heldKeys.size === 0) {
+                    handleNoteOff(padNoteId, 'XY-Pad-Touch');
+                    padNoteId = null;
+                }
+                trail = [];
+                drawXYPad();
+            }
+        });
+
+        xyPad.addEventListener('pointercancel', () => {
+            panicAllOff('pointercancel');
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.isComposing) return;
+            if (e.repeat) return;
+            
+            if (e.key === 'Escape') {
+                panicAllOff('ESC key');
+                return;
+            }
+            
+            let key = e.key.toLowerCase();
+            if (!keyMap[key] && codeMap[e.code]) {
+                key = codeMap[e.code];
+            }
+            
+            if (keyMap[key] && !heldKeys.has(key)) {
+                const noteInfo = keyMap[key];
+                const savedNoteId = nextNoteId;
+                heldKeys.set(key, { noteId: savedNoteId, freq: noteInfo.freq });
+                handleNoteOn(noteInfo.freq, `Key:${noteInfo.name}`);
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.isComposing) return;
+            
+            let key = e.key.toLowerCase();
+            if (!keyMap[key] && codeMap[e.code]) {
+                key = codeMap[e.code];
+            }
+            
+            if (keyMap[key] && heldKeys.has(key)) {
+                const noteInfo = heldKeys.get(key);
+                heldKeys.delete(key);
+                
+                if (noteInfo.noteId === activeNoteId) {
+                    handleNoteOff(noteInfo.noteId, `Key:${keyMap[key].name}`);
+                }
+            }
+        });
+
+        // Safety（初期化完了後に有効化）
+        let safetyEnabled = false;
+        
+        window.addEventListener('blur', () => {
+            if (safetyEnabled) {
+                panicAllOff('window blur');
+            }
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (safetyEnabled && document.hidden) {
+                panicAllOff('tab hidden');
+            }
+        });
+
+        killBtn.addEventListener('click', () => {
+            panicAllOff('Kill button');
+        });
+
+        // Engine initialization
+        startBtn.addEventListener('click', async () => {
+            if (!audioContext) {
+                status.textContent = "🎵 Initializing Audio...";
+                
+                try {
+                    console.log('[Main] === START ENGINE (Chrome/iPad Compatible) ===');
+                    
+                    // === STEP 0: iOS Audio Unlock (MUST be first, in user gesture stack) ===
+                    console.log('[Main] Step 0: Creating AudioContext in user gesture...');
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    if (!AudioContextClass) {
+                        throw new Error('AudioContext not supported on this device');
+                    }
+                    
+                    audioContext = new AudioContextClass({
+                        latencyHint: 'interactive',
+                        sampleRate: 44100
+                    });
+                    console.log('[Main] ✓ AudioContext created');
+                    console.log('[Main] Sample Rate:', audioContext.sampleRate);
+                    console.log('[Main] State:', audioContext.state);
+                    
+                    // Resume immediately (iOS unlock)
+                    if (audioContext.state === 'suspended') {
+                        console.log('[Main] Resuming AudioContext (iOS unlock)...');
+                        await audioContext.resume();
+                        console.log('[Main] ✓ AudioContext resumed:', audioContext.state);
+                    }
+                    
+                    // iOS: Play silent tone to unlock audio (critical for iOS Chrome)
+                    if (isIOS) {
+                        console.log('[Main] iOS detected - playing silent unlock tone...');
+                        try {
+                            const unlockOsc = audioContext.createOscillator();
+                            const unlockGain = audioContext.createGain();
+                            unlockGain.gain.value = 0.001; // Very quiet
+                            unlockOsc.connect(unlockGain);
+                            unlockGain.connect(audioContext.destination);
+                            unlockOsc.start(audioContext.currentTime);
+                            unlockOsc.stop(audioContext.currentTime + 0.01); // 10ms
+                            console.log('[Main] ✓ Silent unlock tone played');
+                        } catch (unlockErr) {
+                            console.warn('[Main] Silent unlock failed:', unlockErr);
+                        }
+                    }
+                    
+                    // === STEP 1: Check AudioWorklet availability ===
+                    console.log('[Main] Step 1: Checking AudioWorklet...');
+                    if (!audioContext.audioWorklet) {
+                        throw new Error(`AudioWorklet not available.\n\n${isSecure ? '' : '⚠️ HTTP detected - try HTTPS\n\n'}Possible causes:\n- iOS/iPadOS version too old (need 14.5+)\n- Browser doesn't support AudioWorklet\n- Running in insecure context (HTTP)\n\nTry:\n- Update iOS/iPadOS\n- Use HTTPS\n- Try desktop Chrome`);
+                    }
+                    console.log('[Main] ✓ AudioWorklet available');
+                    console.log('[Main] audioWorklet type:', typeof audioContext.audioWorklet);
+                    
+                    // Private Browsing check (warning only)
+                    try {
+                        localStorage.setItem('__storage_test__', '1');
+                        localStorage.removeItem('__storage_test__');
+                    } catch (e) {
+                        console.warn('[Main] ⚠ Private Browsing detected - may cause issues');
+                    }
+                    
+                    status.textContent = "📦 Loading Modules...";
+                    
+                // Step 1: Load polyfill FIRST
+                console.log('[Main] About to load polyfill.js...');
+                console.log('[Main] audioContext:', typeof audioContext);
+                console.log('[Main] audioContext.audioWorklet:', typeof audioContext.audioWorklet);
+                
+                try {
+                    await audioContext.audioWorklet.addModule('polyfill.js');
+                    console.log('[Main] ✓ Polyfill loaded');
+                } catch (moduleError) {
+                    console.error('[Main] ❌ Failed to load polyfill.js:', moduleError);
+                    throw new Error(`Failed to load polyfill.js: ${moduleError.message}\n\nCheck:\n1. Server is running\n2. polyfill.js exists\n3. Network connection`);
+                }
+                
+                status.textContent = "🎹 Loading Processor...";
+                
+                // Step 2: Load processor (which imports rust_noise.js)
+                console.log('[Main] About to load processor.js...');
+                try {
+                    await audioContext.audioWorklet.addModule('processor.js');
+                    console.log('[Main] ✓ Processor loaded');
+                } catch (moduleError) {
+                    console.error('[Main] ❌ Failed to load processor.js:', moduleError);
+                    throw new Error(`Failed to load processor.js: ${moduleError.message}\n\nCheck:\n1. Server is running\n2. processor.js exists\n3. rust_noise.js exists in pkg/\n4. Network connection`);
+                }
+                
+                status.textContent = "🦀 Loading WASM...";
+
+                const response = await fetch('./pkg/rust_noise_bg.wasm');
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch WASM: ${response.status}`);
+                }
+                const wasmBytes = await response.arrayBuffer();
+                console.log('[Main] ✓ WASM fetched:', wasmBytes.byteLength, 'bytes');
+                
+                status.textContent = "🔌 Connecting Audio...";
+
+                workletNode = new AudioWorkletNode(audioContext, 'rust-noise-processor', {
+                    numberOfInputs: 0,
+                    numberOfOutputs: 1,
+                    outputChannelCount: [2]
+                });
+                console.log('[Main] ✓ AudioWorkletNode created');
+                
+                // 音出力確保: Destination直接接続
+                workletNode.connect(audioContext.destination);
+                console.log('[Main] ✓ Worklet → Destination connected');
+                
+                // Analyser分岐接続（音出力に影響しない）
+                analyserNode = audioContext.createAnalyser();
+                analyserNode.fftSize = 2048;
+                analyserNode.smoothingTimeConstant = 0.8;
+                workletNode.connect(analyserNode);
+                console.log('[Main] ✓ Worklet → Analyser connected');
+                console.log('[Main] ✓ Analyser fftSize:', analyserNode.fftSize);
+                
+                status.textContent = "📊 Initializing Scopes...";
+                
+                // Scope描画を即座に開始
+                if (waveCanvas && spectrumCanvas && phaseCanvas) {
+                    console.log('[Main] ✓ Resizing scope canvases...');
+                    resizeCanvas();  // Canvas サイズを正しく設定
+                    console.log('[Main] ✓ Starting scope drawing immediately');
+                    drawScopes();
+                } else {
+                    console.warn('[Main] ✗ Scope canvases not found');
+                }
+                
+                status.textContent = "🦀 Initializing Rust Engine...";
+                
+                // Wasmバイト送信
+                console.log('[Main] Sending WASM bytes to worklet...');
+                const wasmSendTime = performance.now();
+                workletNode.port.postMessage({ type: 'init-wasm', wasmBytes });
+                console.log('[Main] ✓ WASM bytes sent (took', (performance.now() - wasmSendTime).toFixed(2), 'ms)');
+                
+                // Wait for Rust engine ready (with extended timeout)
+                console.log('[Main] Waiting for Rust engine ready signal...');
+                const initStartTime = performance.now();
+                
+                await new Promise((resolve, reject) => {
+                    const TIMEOUT_MS = 30000; // 30 seconds (extended timeout)
+                    let progressTimer;
+                    
+                    const timeout = setTimeout(() => {
+                        clearInterval(progressTimer);
+                        const elapsed = ((performance.now() - initStartTime) / 1000).toFixed(1);
+                        console.error('[Main] ❌ Timeout after', elapsed, 'seconds');
+                        reject(new Error(`Rust engine initialization timeout after ${elapsed}s.\n\nPossible causes:\n1. WASM file is too large\n2. Device is too slow\n3. processor.js has errors\n\nTry:\n1. Refresh the page\n2. Close other tabs\n3. Check browser console for errors`));
+                    }, TIMEOUT_MS);
+                    
+                    // Progress indicator every 2 seconds
+                    progressTimer = setInterval(() => {
+                        const elapsed = ((performance.now() - initStartTime) / 1000).toFixed(1);
+                        console.log('[Main] ⏳ Still waiting for Rust engine... (', elapsed, 's elapsed)');
+                    }, 2000);
+                    
+                    workletNode.port.onmessage = (e) => {
+                        console.log('[Main] 📨 Received message from worklet:', e.data.type);
+                        
+                        if (e.data.type === 'engine-ready') {
+                            clearTimeout(timeout);
+                            clearInterval(progressTimer);
+                            const elapsed = ((performance.now() - initStartTime) / 1000).toFixed(2);
+                            console.log('[Main] ✅ Rust engine ready! (took', elapsed, 'seconds)');
+                            resolve();
+                        } else if (e.data.type === 'engine-error') {
+                            clearTimeout(timeout);
+                            clearInterval(progressTimer);
+                            console.error('[Main] ❌ Engine initialization error:', e.data.error);
+                            reject(new Error(`Engine initialization failed: ${e.data.error}`));
+                        } else if (e.data.type === 'init-progress') {
+                            // Progress update from worklet
+                            console.log('[Main] 🔄 Init progress:', e.data.message);
+                            status.textContent = `🦀 ${e.data.message}`;
+                        } else if (e.data.type === 'error') {
+                            clearTimeout(timeout);
+                            clearInterval(progressTimer);
+                            console.error('[Main] ❌ Worklet error:', e.data.message);
+                            reject(new Error(`Worklet initialization error: ${e.data.message}`));
+                        }
+                    };
+                });
+                
+                console.log('[Main] ✅ Rust engine initialization complete');
+
+                status.textContent = "✅ Running - Heavy Edition";
+                startBtn.textContent = "✅ RUNNING";
+                startBtn.disabled = true;
+                startBtn.style.background = 'linear-gradient(135deg, #00ff00 0%, #00cc00 100%)';
+                killBtn.disabled = false;
+
+                // Send initial parameters
+                console.log('[Main] Sending initial parameters...');
+                workletNode.port.postMessage({ type: 'noise-level', value: 0.0 });
+                workletNode.port.postMessage({ type: 'noise-gate-follow', value: true });
+                workletNode.port.postMessage({ type: 'noise-drone', value: false });
+                workletNode.port.postMessage({ type: 'fm-level', value: 1.0 });
+                workletNode.port.postMessage({ type: 'param', value: 1.0 });
+                workletNode.port.postMessage({ type: 'feedback', value: parseFloat(feedbackSlider.value) });
+                workletNode.port.postMessage({ type: 'cutoff', value: parseFloat(cutoffFader.value) });
+                workletNode.port.postMessage({ type: 'resonance', value: parseFloat(resonanceFader.value) });
+                workletNode.port.postMessage({ type: 'fold-amount', value: parseFloat(foldSlider.value) });
+                workletNode.port.postMessage({ type: 'bit-depth', value: parseFloat(bitDepthSlider.value) });
+                
+                // ADSR
+                workletNode.port.postMessage({ 
+                    type: 'set-adsr', 
+                    attack: parseFloat(attackFader.value),
+                    decay: parseFloat(decayFader.value),
+                    sustain: parseFloat(sustainFader.value),
+                    release: parseFloat(releaseFader.value)
+                });
+                
+                // Heavy Color
+                workletNode.port.postMessage({ 
+                    type: 'set-sub', 
+                    level: parseFloat(subLevelSlider.value),
+                    detune: parseFloat(subDetuneSlider.value)
+                });
+                workletNode.port.postMessage({ 
+                    type: 'set-saturation', 
+                    drive: parseFloat(satDriveSlider.value),
+                    mix: parseFloat(satMixSlider.value)
+                });
+                workletNode.port.postMessage({ type: 'set-tilt', value: parseFloat(tiltSlider.value) });
+                workletNode.port.postMessage({ type: 'set-post-gain', value: parseFloat(postGainSlider.value) });
+                workletNode.port.postMessage({ type: 'set-limiter', amount: parseFloat(limiterSlider.value) });
+                
+                // モジュレーション初期値
+                workletNode.port.postMessage({
+                    type: 'set-lfo',
+                    rate: parseFloat(lfoRateSlider.value),
+                    depth: 0,
+                    shape: 0
+                });
+                workletNode.port.postMessage({
+                    type: 'set-sample-hold',
+                    rate: parseFloat(shRateSlider.value),
+                    depth: 0,
+                    slew: parseFloat(shSlewSlider.value)
+                });
+                workletNode.port.postMessage({
+                    type: 'set-jitter',
+                    amount: parseFloat(jitterAmountSlider.value),
+                    band: 500
+                });
+                workletNode.port.postMessage({
+                    type: 'set-chorus',
+                    mix: parseFloat(chorusMixSlider.value),
+                    rate: parseFloat(chorusRateSlider.value),
+                    depth: parseFloat(chorusDepthSlider.value),
+                    feedback: 0.3
+                });
+                workletNode.port.postMessage({
+                    type: 'set-spasm',
+                    value: parseFloat(spasmSlider.value)
+                });
+                workletNode.port.postMessage({
+                    type: 'set-mod-routing',
+                    lfo_cutoff: parseFloat(lfoToCutoffSlider.value),
+                    lfo_fold: 0,
+                    sh_cutoff: parseFloat(shToCutoffSlider.value),
+                    sh_fold: parseFloat(shToFoldSlider.value),
+                    sh_bit: parseFloat(shToBitSlider.value),
+                    jitter_pitch: 0
+                });
+
+                // ADSR handlers
+                attackFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-adsr',
+                        attack: parseFloat(e.target.value),
+                        decay: parseFloat(decayFader.value),
+                        sustain: parseFloat(sustainFader.value),
+                        release: parseFloat(releaseFader.value)
+                    });
+                });
+                decayFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-adsr',
+                        attack: parseFloat(attackFader.value),
+                        decay: parseFloat(e.target.value),
+                        sustain: parseFloat(sustainFader.value),
+                        release: parseFloat(releaseFader.value)
+                    });
+                });
+                sustainFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-adsr',
+                        attack: parseFloat(attackFader.value),
+                        decay: parseFloat(decayFader.value),
+                        sustain: parseFloat(e.target.value),
+                        release: parseFloat(releaseFader.value)
+                    });
+                });
+                releaseFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-adsr',
+                        attack: parseFloat(attackFader.value),
+                        decay: parseFloat(decayFader.value),
+                        sustain: parseFloat(sustainFader.value),
+                        release: parseFloat(e.target.value)
+                    });
+                });
+                
+                // Filter handlers
+                cutoffFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'cutoff', value: parseFloat(e.target.value) });
+                });
+                resonanceFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'resonance', value: parseFloat(e.target.value) });
+                });
+                
+                // Heavy Color handlers
+                subLevelSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-sub',
+                        level: parseFloat(e.target.value),
+                        detune: parseFloat(subDetuneSlider.value)
+                    });
+                });
+                subDetuneSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-sub',
+                        level: parseFloat(subLevelSlider.value),
+                        detune: parseFloat(e.target.value)
+                    });
+                });
+                satDriveSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-saturation',
+                        drive: parseFloat(e.target.value),
+                        mix: parseFloat(satMixSlider.value)
+                    });
+                });
+                satMixSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-saturation',
+                        drive: parseFloat(satDriveSlider.value),
+                        mix: parseFloat(e.target.value)
+                    });
+                });
+                tiltSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'set-tilt', value: parseFloat(e.target.value) });
+                });
+                postGainSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'set-post-gain', value: parseFloat(e.target.value) });
+                });
+                limiterSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'set-limiter', amount: parseFloat(e.target.value) });
+                });
+                
+                // SPASM handlers
+                spasmSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'set-spasm', value: parseFloat(e.target.value) });
+                });
+                shRateSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-sample-hold',
+                        rate: parseFloat(e.target.value),
+                        depth: 0,
+                        slew: parseFloat(shSlewSlider.value)
+                    });
+                });
+                shSlewSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-sample-hold',
+                        rate: parseFloat(shRateSlider.value),
+                        depth: 0,
+                        slew: parseFloat(e.target.value)
+                    });
+                });
+                jitterAmountSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-jitter',
+                        amount: parseFloat(e.target.value),
+                        band: 500
+                    });
+                });
+                
+                // FLOAT handlers
+                chorusMixSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-chorus',
+                        mix: parseFloat(e.target.value),
+                        rate: parseFloat(chorusRateSlider.value),
+                        depth: parseFloat(chorusDepthSlider.value),
+                        feedback: 0.3
+                    });
+                });
+                chorusRateSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-chorus',
+                        mix: parseFloat(chorusMixSlider.value),
+                        rate: parseFloat(e.target.value),
+                        depth: parseFloat(chorusDepthSlider.value),
+                        feedback: 0.3
+                    });
+                });
+        
+        // BUILD 022: Industrial Shaper Event Listeners
+        
+        // Hard Sync
+        const syncAmountSlider = document.getElementById('syncAmountSlider');
+        const syncAmountValue = document.getElementById('syncAmountValue');
+        syncAmountSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            syncAmountValue.textContent = value.toFixed(1);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'sync-amount', value: value });
+            }
+        });
+        
+        // Ring Modulation
+        const ringMixSlider = document.getElementById('ringMixSlider');
+        const ringMixValue = document.getElementById('ringMixValue');
+        ringMixSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            ringMixValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'ring-mix', value: value });
+            }
+        });
+        
+        const ringRatioSlider = document.getElementById('ringRatioSlider');
+        const ringRatioValue = document.getElementById('ringRatioValue');
+        ringRatioSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            ringRatioValue.textContent = value.toFixed(1);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'ring-ratio', value: value });
+            }
+        });
+        
+        // Comb Filter
+        const combMixSlider = document.getElementById('combMixSlider');
+        const combMixValue = document.getElementById('combMixValue');
+        combMixSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combMixValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-mix', value: value });
+            }
+        });
+        
+        const combFreqSlider = document.getElementById('combFreqSlider');
+        const combFreqValue = document.getElementById('combFreqValue');
+        combFreqSlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            combFreqValue.textContent = value + ' Hz';
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-freq', value: value });
+            }
+        });
+        
+        const combFeedbackSlider = document.getElementById('combFeedbackSlider');
+        const combFeedbackValue = document.getElementById('combFeedbackValue');
+        combFeedbackSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combFeedbackValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-feedback', value: value });
+            }
+        });
+        
+        const combDampSlider = document.getElementById('combDampSlider');
+        const combDampValue = document.getElementById('combDampValue');
+        combDampSlider.addEventListener('input', (e) => {
+            const value = parseFloat(e.target.value);
+            combDampValue.textContent = value.toFixed(2);
+            if (workletNode) {
+                workletNode.port.postMessage({ type: 'comb-damp', value: value });
+            }
+        });
+        
+
+        chorusDepthSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-chorus',
+                        mix: parseFloat(chorusMixSlider.value),
+                        rate: parseFloat(chorusRateSlider.value),
+                        depth: parseFloat(e.target.value),
+                        feedback: 0.3
+                    });
+                });
+                lfoRateSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-lfo',
+                        rate: parseFloat(e.target.value),
+                        depth: 0,
+                        shape: 0
+                    });
+                });
+                
+                // MOD ASSIGN handlers
+                lfoToCutoffSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-mod-routing',
+                        lfo_cutoff: parseFloat(e.target.value),
+                        lfo_fold: 0,
+                        sh_cutoff: parseFloat(shToCutoffSlider.value),
+                        sh_fold: parseFloat(shToFoldSlider.value),
+                        sh_bit: parseFloat(shToBitSlider.value),
+                        jitter_pitch: 0
+                    });
+                });
+                shToCutoffSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-mod-routing',
+                        lfo_cutoff: parseFloat(lfoToCutoffSlider.value),
+                        lfo_fold: 0,
+                        sh_cutoff: parseFloat(e.target.value),
+                        sh_fold: parseFloat(shToFoldSlider.value),
+                        sh_bit: parseFloat(shToBitSlider.value),
+                        jitter_pitch: 0
+                    });
+                });
+                shToFoldSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-mod-routing',
+                        lfo_cutoff: parseFloat(lfoToCutoffSlider.value),
+                        lfo_fold: 0,
+                        sh_cutoff: parseFloat(shToCutoffSlider.value),
+                        sh_fold: parseFloat(e.target.value),
+                        sh_bit: parseFloat(shToBitSlider.value),
+                        jitter_pitch: 0
+                    });
+                });
+                shToBitSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({
+                        type: 'set-mod-routing',
+                        lfo_cutoff: parseFloat(lfoToCutoffSlider.value),
+                        lfo_fold: 0,
+                        sh_cutoff: parseFloat(shToCutoffSlider.value),
+                        sh_fold: parseFloat(shToFoldSlider.value),
+                        sh_bit: parseFloat(e.target.value),
+                        jitter_pitch: 0
+                    });
+                });
+                
+                // Other handlers
+                driveSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'param', value: parseFloat(e.target.value) });
+                });
+                noiseLevelSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'noise-level', value: parseFloat(e.target.value) });
+                });
+                fmLevelSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'fm-level', value: parseFloat(e.target.value) });
+                });
+                feedbackSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'feedback', value: parseFloat(e.target.value) });
+                });
+                foldSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'fold-amount', value: parseFloat(e.target.value) });
+                });
+                bitDepthSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'bit-depth', value: parseFloat(e.target.value) });
+                });
+                
+                // === Filter Character handlers (BUILD 019) ===
+                filterQCharFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'filter-q', value: parseFloat(e.target.value) });
+                });
+                filterDampFader.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'filter-damping', value: parseFloat(e.target.value) });
+                });
+                filterDriveSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ type: 'filter-drive', value: parseFloat(e.target.value) });
+                });
+                
+                // === Wave Synthesis handlers ===
+                synthTypeSelect.addEventListener('change', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-synth-type', 
+                        synthType: e.target.value 
+                    });
+                    console.log('[WaveSynth] → Engine: type =', e.target.value);
+                });
+                
+                // FM
+                fmRatioSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-fm-ratio', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // Wavetable
+                wavetablePosSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-wavetable-pos', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                waveMorphSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-wave-morph', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // Additive
+                harmonicsCountSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-harmonics-count', 
+                        value: parseInt(e.target.value) 
+                    });
+                });
+                harmonicRolloffSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-harmonic-rolloff', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // Phase Distortion
+                phaseDistAmtSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-phase-dist-amt', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                phaseResonanceSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-phase-resonance', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // Vector
+                vectorXSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-vector-x', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                vectorYSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-vector-y', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // Granular
+                grainSizeSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-grain-size', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                grainDensitySlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-grain-density', 
+                        value: parseInt(e.target.value) 
+                    });
+                });
+                
+                // Modal
+                modalStiffnessSlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-modal-stiffness', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                modalInharmonicitySlider.addEventListener('input', (e) => {
+                    workletNode.port.postMessage({ 
+                        type: 'set-modal-inharmonicity', 
+                        value: parseFloat(e.target.value) 
+                    });
+                });
+                
+                // === Chaos Engine handlers ===
+                chaosModeSelect.addEventListener('change', (e) => {
+                    console.log('[Processor] Chaos Mode:', e.target.value);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'chaos-mode', value: e.target.value });
+                    }
+                });
+                
+                chaosRateSlider.addEventListener('input', (e) => {
+                    chaosRateValue.textContent = parseFloat(e.target.value).toFixed(1);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'chaos-rate', value: parseFloat(e.target.value) });
+                    }
+                });
+                
+                chaosEnabledCheckbox.addEventListener('change', (e) => {
+                    console.log('[Processor] Chaos Enabled:', e.target.checked);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'chaos-enabled', value: e.target.checked });
+                    }
+                });
+                
+                driftAmountSlider.addEventListener('input', (e) => {
+                    driftAmountValue.textContent = parseFloat(e.target.value).toFixed(2);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'drift-amount', value: parseFloat(e.target.value) });
+                    }
+                });
+                
+                driftSpeedSlider.addEventListener('input', (e) => {
+                    driftSpeedValue.textContent = parseFloat(e.target.value).toFixed(1);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'drift-speed', value: parseFloat(e.target.value) });
+                    }
+                });
+                
+                driftTypeSelect.addEventListener('change', (e) => {
+                    console.log('[Processor] Drift Type:', e.target.value);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'drift-type', value: e.target.value });
+                    }
+                });
+                
+                diffusionMixSlider.addEventListener('input', (e) => {
+                    diffusionMixValue.textContent = parseFloat(e.target.value).toFixed(2);
+                    if (workletNode) {
+                        workletNode.port.postMessage({ type: 'diffusion-mix', value: parseFloat(e.target.value) });
+                    }
+                });
+
+                audioContext.addEventListener('statechange', () => {
+                    if (audioContext.state === 'suspended') {
+                        panicAllOff('AudioContext suspended');
+                    }
+                });
+
+                // 安全装置を有効化
+                safetyEnabled = true;
+
+                drawXYPad();
+                console.log('[Main] ✓ Heavy Edition ready');
+
+            } catch (err) {
+                console.error('[Main] ❌ FATAL ERROR:', err);
+                console.error('[Main] Error name:', err.name);
+                console.error('[Main] Error message:', err.message);
+                console.error('[Main] Error stack:', err.stack);
+                
+                let errorMessage = '❌ ';
+                let detailedMessage = '';
+                
+                // Check if error is related to AudioWorklet
+                if (err.message && err.message.includes('AudioWorklet not available')) {
+                    errorMessage += 'AudioWorklet Not Available';
+                    detailedMessage = err.message;
+                } else if (err.message && err.message.includes('audioWorklet')) {
+                    errorMessage += 'AudioWorklet Not Available';
+                    detailedMessage = `AudioWorklet is not supported.\n\n${isSecure ? '' : '⚠️ HTTP detected - try HTTPS\n\n'}Possible causes:\n• iOS/iPadOS version too old (need 14.5+)\n• Running in insecure context (HTTP)\n• Private Browsing mode\n\nTroubleshooting:\n1. Try HTTPS (setup mkcert)\n2. Update iOS/iPadOS\n3. Exit Private Browsing\n4. Try desktop Chrome`;
+                } else if (err.name === 'NotAllowedError') {
+                    errorMessage += 'Audio Blocked';
+                    detailedMessage = 'Browser blocked audio access.\n\n1. Settings → Safari → Camera & Microphone\n2. Allow this site\n3. Refresh the page';
+                } else if (err.name === 'NotSupportedError') {
+                    errorMessage += 'Feature Not Supported';
+                    detailedMessage = 'AudioWorklet not supported.\n\nPlease use Safari on iPad with iOS 14.5+';
+                } else if (err.message && err.message.includes('fetch')) {
+                    errorMessage += 'Network Error';
+                    detailedMessage = 'Failed to load audio engine files.\n\n1. Check Wi-Fi connection\n2. Check PC server is running\n3. Refresh the page';
+                } else if (err.message && err.message.includes('AudioWorkletNode')) {
+                    errorMessage += 'Processor Creation Failed';
+                    detailedMessage = 'Failed to create audio processor.\n\n1. Refresh the page\n2. Clear Safari cache\n3. Restart Safari';
+                } else if (err.message && err.message.includes('timeout')) {
+                    errorMessage += 'Initialization Timeout';
+                    const timeMatch = err.message.match(/(\d+\.?\d*)s/);
+                    const timeStr = timeMatch ? timeMatch[1] + ' seconds' : 'too long';
+                    detailedMessage = `Audio engine initialization took ${timeStr}.\n\n⚠️ Extended timeout is 30 seconds.\n\nPossible causes:\n• WASM file too large (check file size)\n• Device CPU is slow\n• Background processes\n• Network issues (localhost should be fast)\n• Browser extensions interfering\n\nTroubleshooting:\n1. Close other tabs and apps\n2. Check browser console for errors\n3. Verify WASM file exists: pkg/rust_noise_bg.wasm\n4. Try different browser (Chrome/Firefox)\n5. Restart computer\n\nConsole logs:\nPress F12 → Console → Check for errors`;
+                } else if (err.message && err.message.includes('State:')) {
+                    errorMessage += 'AudioContext Failed';
+                    detailedMessage = err.message + '\n\n1. Refresh the page\n2. Restart Safari\n3. Restart iPad';
+                } else {
+                    errorMessage += 'Unknown Error';
+                    detailedMessage = err.message;
+                }
+                
+                status.textContent = errorMessage;
+                status.style.color = '#ff3333';
+                status.style.fontSize = '14px';
+                status.style.fontWeight = 'bold';
+                startBtn.textContent = "❌ FAILED - TRY AGAIN";
+                startBtn.disabled = false;
+                startBtn.style.background = 'linear-gradient(135deg, #ff3333 0%, #cc0000 100%)';
+                startBtn.style.animation = 'none';
+                
+                // Clean up
+                if (audioContext) {
+                    try {
+                        await audioContext.close();
+                    } catch (closeErr) {
+                        console.error('[Main] Error closing AudioContext:', closeErr);
+                    }
+                    audioContext = null;
+                }
+                workletNode = null;
+                analyserNode = null;
+                
+                // Show detailed error alert
+                setTimeout(() => {
+                    alert(`🔴 Audio Initialization Failed\n\n${errorMessage}\n\n${detailedMessage}\n\n📋 Technical Details:\n${err.message}`);
+                }, 100);
+            }
+        } else {
+            console.log('[Main] AudioContext already initialized');
+            // Resume if suspended (iOS can suspend context)
+            if (audioContext && audioContext.state === 'suspended') {
+                try {
+                    await audioContext.resume();
+                    console.log('[Main] ✓ AudioContext resumed, state:', audioContext.state);
+                    if (audioContext.state === 'running') {
+                        status.textContent = "✅ Running - Heavy Edition";
+                        startBtn.textContent = "✅ RUNNING";
+                    }
+                } catch (resumeErr) {
+                    console.error('[Main] Failed to resume AudioContext:', resumeErr);
+                }
+            }
+        }
+        });
+        
+        // Resize canvas
+        function resizeCanvas() {
+            // XY Pad
+            const rect = xyPad.getBoundingClientRect();
+            xyPad.width = rect.width;
+            xyPad.height = rect.height;
+            drawXYPad();
+            
+            // Scope Canvases
+            if (waveCanvas) {
+                const waveRect = waveCanvas.getBoundingClientRect();
+                waveCanvas.width = waveRect.width;
+                waveCanvas.height = waveRect.height;
+                console.log('[Canvas] Waveform:', waveRect.width, 'x', waveRect.height);
+            }
+            if (spectrumCanvas) {
+                const specRect = spectrumCanvas.getBoundingClientRect();
+                spectrumCanvas.width = specRect.width;
+                spectrumCanvas.height = specRect.height;
+                console.log('[Canvas] Spectrum:', specRect.width, 'x', specRect.height);
+            }
+            if (phaseCanvas) {
+                const phaseRect = phaseCanvas.getBoundingClientRect();
+                phaseCanvas.width = phaseRect.width;
+                phaseCanvas.height = phaseRect.height;
+                console.log('[Canvas] Phase:', phaseRect.width, 'x', phaseRect.height);
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // === Touch Device Optimization (iOS/iPadOS) ===
+        console.log('[Touch] Initializing touch optimizations...');
+        
+        // Detect touch device
+        const isTouchDevice = ('ontouchstart' in window) || 
+                             (navigator.maxTouchPoints > 0) || 
+                             (navigator.msMaxTouchPoints > 0);
+        
+        if (isTouchDevice) {
+            console.log('[Touch] ✓ Touch device detected');
+            console.log('[Touch] User Agent:', navigator.userAgent);
+            console.log('[Touch] Max Touch Points:', navigator.maxTouchPoints);
+            document.body.classList.add('touch-device');
+            
+            // iOS/iPadOS specific: Prevent double-tap zoom ONLY on UI controls
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', (e) => {
+                const now = Date.now();
+                if (now - lastTouchEnd <= 300) {
+                    const target = e.target;
+                    // Only prevent on buttons and controls
+                    if (target.tagName === 'BUTTON' || 
+                        target.tagName === 'INPUT' ||
+                        target.tagName === 'CANVAS' ||
+                        target.classList.contains('touch-key')) {
+                        e.preventDefault();
+                    }
+                }
+                lastTouchEnd = now;
+            }, { passive: false });
+            
+            // Prevent pull-to-refresh on XY Pad and controls
+            document.querySelectorAll('#xyPad, .touch-key, button').forEach(elem => {
+                elem.addEventListener('touchstart', (e) => {
+                    e.stopPropagation();
+                }, { passive: true });
+            });
+            
+            console.log('[Touch] ✓ iOS/iPadOS optimizations applied');
+        } else {
+            console.log('[Touch] Desktop device detected');
+        }
+        
+        console.log('[Main] ✓ All initializations complete');
+        console.log('[Main] 📱 Ready for iPad Air 5th Gen');
+    </script>
+
+</body>
+</html>
